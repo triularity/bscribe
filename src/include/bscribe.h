@@ -181,6 +181,14 @@ struct _bscribe_outstream
 };
 
 
+typedef struct _bscribe_instream_buffer
+{
+	bscribe_instream_t	base;
+	const uint8_t *		buf;
+	size_t			len;
+} bscribe_instream_buffer_t;
+
+
 typedef struct _bscribe_instream_stdio
 {
 	bscribe_instream_t	base;
@@ -360,9 +368,14 @@ bscribe_instream_t *	bscribe_instream_from_fd(bscribe_instream_fdesc_t * stream,
 bscribe_outstream_t *	bscribe_outstream_from_fd(bscribe_outstream_fdesc_t * stream, int fd);
 
 
+bscribe_instream_t *	bscribe_instream_from_buffer(bscribe_instream_buffer_t * stream, const uint8_t * buf, size_t len);
+
+
 bscribe_instream_t *	bscribe_instream_from_stdio(bscribe_instream_stdio_t * stream, FILE * fp);
 
 bscribe_outstream_t *	bscribe_outstream_from_stdio(bscribe_outstream_stdio_t * stream, FILE * fp);
+
+bscribe_status_t	_bscribe_instream_buffer_read(bscribe_instream_t * stream, void * buf, size_t len);
 
 bscribe_status_t	_bscribe_instream_stdio_read(bscribe_instream_t * stream, void * buf, size_t len);
 

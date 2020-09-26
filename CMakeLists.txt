@@ -9,8 +9,10 @@ set(BSCRIBE_PARANOID TRUE CACHE BOOL "Enable Paranoid Code Checks")
 set(BSCRIBE_PARANOID_BREAKPOINT FALSE CACHE BOOL "Enable Debugger Breakpoint on Assertion Failure")
 set(BSCRIBE_PARANOID_DEBUG FALSE CACHE BOOL "Enable Paranoid Debug Output")
 set(BSCRIBE_WARNFREE TRUE CACHE BOOL "Enable Error on Compile Warnings")
+set(BSCRIBE_EXTRACHECKS TRUE CACHE BOOL "Enable Extra Compiler Sanitization")
 set(BSCRIBE_COMPILE_EXAMPLES TRUE CACHE BOOL "Compile Example Code")
 ##set(BSCRIBE_COMPILE_TESTS TRUE CACHE BOOL "Compile Unit Tests")
+set(BSCRIBE_FUZZER TRUE CACHE BOOL "Compile with LLVM libFuzzer")
 
 
 include_directories(BEFORE src/include)
@@ -33,6 +35,8 @@ set(BSCRIBE_LIB_SOURCE_FILES
 	src/libbscribe/dict_length.c
 	src/libbscribe/dict_remove.c
 	src/libbscribe/dict_set.c
+	src/libbscribe/instream_buffer_read.c
+	src/libbscribe/instream_from_buffer.c
 	src/libbscribe/instream_from_stdio.c
 	src/libbscribe/instream_stdio_read.c
 	src/libbscribe/int_copy.c
@@ -97,6 +101,9 @@ set(BSCRIBE_LIB_SOURCE_FILES
 #
 if(BSCRIBE_PARANOID)
 	add_definitions("-DBSCRIBE_PARANOID")
+else()
+	set(BSCRIBE_PARANOID_BREAKPOINT FALSE)
+	set(BSCRIBE_PARANOID_DEBUG FALSE)
 endif()
 
 if(BSCRIBE_PARANOID_BREAKPOINT)
@@ -109,12 +116,33 @@ endif()
 
 
 #
-# [lib]bscribe
+# Extra Compiler Checks
 #
-add_library(
-	bscribe
-		${BSCRIBE_LIB_SOURCE_FILES}
-		${BSCRIBE_HEADER_FILES})
+if(BSCRIBE_EXTRACHECKS)
+	if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+		add_compile_options("-fsanitize=undefined")
+	endif()
+endif()
+
+
+#
+# LLVM libFuzzer
+#
+if(BSCRIBE_FUZZER)
+	set(FUZZER_SANITIZERS "address")
+
+	if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+		add_compile_options(
+			"-fsanitize=${FUZZER_SANITIZERS},fuzzer-no-link")
+
+		set(CMAKE_EXE_LINKER_FLAGS
+			${CMAKE_EXE_LINKER_FLAGS}
+			"-fsanitize=${FUZZER_SANITIZERS},fuzzer-no-link")
+	else()
+		message(WARNING "libFuzz only supported for Clang")
+		set(BSCRIBE_FUZZER FALSE)
+	endif()
+endif(BSCRIBE_FUZZER)
 
 
 #
@@ -184,6 +212,15 @@ if(DEFINED LIBNAME_POSTFIX)
 		bscribe PROPERTIES
 			OUTPUT_NAME "bscribe${LIBNAME_POSTFIX}")
 endif(DEFINED LIBNAME_POSTFIX)
+
+
+#
+# [lib]bscribe
+#
+add_library(
+	bscribe
+		${BSCRIBE_LIB_SOURCE_FILES}
+		${BSCRIBE_HEADER_FILES})
 
 
 #
@@ -314,3 +351,26 @@ if(BSCRIBE_COMPILE_TESTS)
 		test_list_create
 			bscribe)
 endif(BSCRIBE_COMPILE_TESTS)
+
+
+#
+# Fuzzers
+#
+if(BSCRIBE_FUZZER)
+	#
+	# Read
+	#
+	add_executable(
+		fuzzer-bscribe_read
+			fuzzer/fuzzer-bscribe_read.c
+			${BSCRIBE_HEADER_FILES})
+
+	target_link_options(
+		fuzzer-bscribe_read
+			PRIVATE "-fsanitize=fuzzer,${FUZZER_SANITIZERS}")
+
+	target_link_libraries(
+		fuzzer-bscribe_read
+			bscribe)
+endif(BSCRIBE_FUZZER)
+

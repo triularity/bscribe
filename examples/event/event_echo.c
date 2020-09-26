@@ -18,20 +18,20 @@ main(int argc, char **argv)
 	bscribe_outstream_t *		outstream;
 
 
-	instream = bscribe_instream_from_stdio(&instream_stdio, stdin);
+	instream = bscribe_instream_stdio_init(&instream_stdio, stdin);
 
 	if(instream == NULL)
 	{
-		fprintf(stderr, "bscribe_instream_from_stdio() failed\n");
+		fprintf(stderr, "bscribe_instream_stdio_init() failed\n");
 		return 1;
 	}
 
 
-	outstream = bscribe_outstream_from_stdio(&outstream_stdio, stdout);
+	outstream = bscribe_outstream_stdio_init(&outstream_stdio, stdout);
 
 	if(outstream == NULL)
 	{
-		fprintf(stderr, "bscribe_outstream_from_stdio() failed\n");
+		fprintf(stderr, "bscribe_outstream_stdio_init() failed\n");
 		return 1;
 	}
 

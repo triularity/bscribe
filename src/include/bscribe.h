@@ -1,7 +1,7 @@
 /*
  * @(#) bscribe.h
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2020, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -189,6 +189,13 @@ typedef struct _bscribe_instream_buffer
 } bscribe_instream_buffer_t;
 
 
+typedef struct _bscribe_instream_fd
+{
+	bscribe_instream_t	base;
+	int			fd;
+} bscribe_instream_fd_t;
+
+
 typedef struct _bscribe_instream_stdio
 {
 	bscribe_instream_t	base;
@@ -196,25 +203,18 @@ typedef struct _bscribe_instream_stdio
 } bscribe_instream_stdio_t;
 
 
+typedef struct _bscribe_outstream_fd
+{
+	bscribe_outstream_t	base;
+	int			fd;
+} bscribe_outstream_fd_t;
+
+
 typedef struct _bscribe_outstream_stdio
 {
 	bscribe_outstream_t	base;
 	FILE *			fp;
 } bscribe_outstream_stdio_t;
-
-
-typedef struct _bscribe_instream_fdesc
-{
-	bscribe_instream_t	base;
-	int			fd;
-} bscribe_instream_fdesc_t;
-
-
-typedef struct _bscribe_outstream_fdesc
-{
-	bscribe_outstream_t	base;
-	int			fd;
-} bscribe_outstream_fdesc_t;
 
 
 typedef struct _bscribe_event_handler
@@ -363,23 +363,28 @@ bscribe_status_t	bscribe_write(bscribe_outstream_t * stream, const bscribe_value
 
 bscribe_status_t	bscribe_parse(bscribe_instream_t * stream, bscribe_event_handler_t * handler, void * client_data);
 
-bscribe_instream_t *	bscribe_instream_from_fd(bscribe_instream_fdesc_t * stream, int fd);
 
-bscribe_outstream_t *	bscribe_outstream_from_fd(bscribe_outstream_fdesc_t * stream, int fd);
-
-
-bscribe_instream_t *	bscribe_instream_from_buffer(bscribe_instream_buffer_t * stream, const uint8_t * buf, size_t len);
-
-
-bscribe_instream_t *	bscribe_instream_from_stdio(bscribe_instream_stdio_t * stream, FILE * fp);
-
-bscribe_outstream_t *	bscribe_outstream_from_stdio(bscribe_outstream_stdio_t * stream, FILE * fp);
+bscribe_instream_t *	bscribe_instream_buffer_init(bscribe_instream_buffer_t * stream, const uint8_t * buf, size_t len);
 
 bscribe_status_t	_bscribe_instream_buffer_read(bscribe_instream_t * stream, void * buf, size_t len);
 
+bscribe_instream_t *	bscribe_instream_fd_init(bscribe_instream_fd_t * stream, int fd);
+
+bscribe_status_t	_bscribe_instream_fd_read(bscribe_instream_t * stream, void * buf, size_t len);
+
+bscribe_instream_t *	bscribe_instream_stdio_init(bscribe_instream_stdio_t * stream, FILE * fp);
+
 bscribe_status_t	_bscribe_instream_stdio_read(bscribe_instream_t * stream, void * buf, size_t len);
 
+
+bscribe_outstream_t *	bscribe_outstream_fd_init(bscribe_outstream_fd_t * stream, int fd);
+
+bscribe_status_t	_bscribe_outstream_fd_write(bscribe_outstream_t * stream, const void * buf, size_t len);
+
+bscribe_outstream_t *	bscribe_outstream_stdio_init(bscribe_outstream_stdio_t * stream, FILE * fp);
+
 bscribe_status_t	_bscribe_outstream_stdio_write(bscribe_outstream_t * stream, const void * buf, size_t len);
+
 
 extern
 bscribe_event_handler_t	bscribe_writer_handler;

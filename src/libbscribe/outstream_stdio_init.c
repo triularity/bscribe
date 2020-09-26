@@ -1,7 +1,7 @@
 /*
- * @(#) libbscribe/outstream_from_stdio.c
+ * @(#) libbscribe/outstream_stdio_init.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2020, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -26,7 +26,7 @@
  * @see		_bscribe_outstream_stdio_write(bscribe_outstream_t *, void *, size_t)
  */
 bscribe_outstream_t *
-bscribe_outstream_from_stdio
+bscribe_outstream_stdio_init
 (
 	bscribe_outstream_stdio_t * stream,
 	FILE * fp

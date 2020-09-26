@@ -136,11 +136,11 @@ main(int argc, char **argv)
 	bscribe_instream_t *		stream;
 
 
-	stream = bscribe_instream_from_stdio(&stream_stdio, stdin);
+	stream = bscribe_instream_stdio_init(&stream_stdio, stdin);
 
 	if(stream == NULL)
 	{
-		fprintf(stderr, "bscribe_instream_from_stdio() failed\n");
+		fprintf(stderr, "bscribe_instream_stdio_init() failed\n");
 		return 1;
 	}
 

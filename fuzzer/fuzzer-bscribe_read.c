@@ -6,7 +6,6 @@
  * A LLVM fuzzer wrapper.
  */
 
-#include <stdio.h>
 #include <stddef.h>
 
 #include <bscribe.h>
@@ -24,7 +23,7 @@ LLVMFuzzerTestOneInput(const uint8_t * data, size_t size)
 	bscribe_value_t *		value;
 
 
-	in = bscribe_instream_from_buffer(&inbuf, data, size);
+	in = bscribe_instream_buffer_init(&inbuf, data, size);
 
 	if(bscribe_read(in, &value) == BSCRIBE_STATUS_SUCCESS)
 		bscribe_value_destroy(value);

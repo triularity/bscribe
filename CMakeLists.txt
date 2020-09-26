@@ -35,9 +35,11 @@ set(BSCRIBE_LIB_SOURCE_FILES
 	src/libbscribe/dict_length.c
 	src/libbscribe/dict_remove.c
 	src/libbscribe/dict_set.c
+	src/libbscribe/instream_buffer_init.c
 	src/libbscribe/instream_buffer_read.c
-	src/libbscribe/instream_from_buffer.c
-	src/libbscribe/instream_from_stdio.c
+	src/libbscribe/instream_fd_init.c
+	src/libbscribe/instream_fd_read.c
+	src/libbscribe/instream_stdio_init.c
 	src/libbscribe/instream_stdio_read.c
 	src/libbscribe/int_copy.c
 	src/libbscribe/int_create.c
@@ -66,7 +68,9 @@ set(BSCRIBE_LIB_SOURCE_FILES
 	src/libbscribe/list_iterate.c
 	src/libbscribe/list_length.c
 	src/libbscribe/list_remove.c
-	src/libbscribe/outstream_from_stdio.c
+	src/libbscribe/outstream_fd_init.c
+	src/libbscribe/outstream_fd_write.c
+	src/libbscribe/outstream_stdio_init.c
 	src/libbscribe/outstream_stdio_write.c
 	src/libbscribe/parse.c
 	src/libbscribe/read.c

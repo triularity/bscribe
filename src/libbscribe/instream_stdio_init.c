@@ -1,7 +1,7 @@
 /*
- * @(#) libbscribe/instream_stdio_read.c
+ * @(#) libbscribe/instream_stdio_init.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2020, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -26,7 +26,7 @@
  * @see		_bscribe_instream_stdio_read(bscribe_instream_t *, void *, size_t)
  */
 bscribe_instream_t *
-bscribe_instream_from_stdio
+bscribe_instream_stdio_init
 (
 	bscribe_instream_stdio_t * stream,
 	FILE * fp

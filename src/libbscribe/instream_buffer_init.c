@@ -1,5 +1,5 @@
 /*
- * @(#) libbscribe/instream_from_buffer.c
+ * @(#) libbscribe/instream_buffer_init.c
  *
  * Copyright (c) 2020, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
@@ -30,7 +30,7 @@
  * @see		_bscribe_instream_buffer_read(bscribe_instream_t *, void *, size_t)
  */
 bscribe_instream_t *
-bscribe_instream_from_buffer
+bscribe_instream_buffer_init
 (
 	bscribe_instream_buffer_t * stream,
 	const uint8_t * buf,

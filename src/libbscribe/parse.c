@@ -157,8 +157,8 @@ parse_string
 	bscribe_status_t	status;
 	int64_t			length;
 	char			ch;
-	unsigned char		small_buffer[128];
-	unsigned char *		buffer;
+	uint8_t			small_buffer[128];
+	uint8_t *		buffer;
 
 
 	length = first_ch - '0';

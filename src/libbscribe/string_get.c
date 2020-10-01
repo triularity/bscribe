@@ -6,6 +6,7 @@
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <bscribe.h>
@@ -35,7 +36,7 @@ bscribe_string_get
 (
 	const bscribe_string_t * bstring,
 	size_t offset,
-	unsigned char * buffer,
+	uint8_t * buffer,
 	size_t length
 )
 {

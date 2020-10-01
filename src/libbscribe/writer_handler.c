@@ -22,9 +22,9 @@
  */
 #define	UINT32_MAXLEN_BASE10	10
 
-static const unsigned char code_dict[1] = { 'd' };
-static const unsigned char code_end[1] = { 'e' };
-static const unsigned char code_list[1] = { 'l' };
+static const uint8_t code_dict[1] = { 'd' };
+static const uint8_t code_end[1] = { 'e' };
+static const uint8_t code_list[1] = { 'l' };
 
 
 static
@@ -117,9 +117,13 @@ do_int_data(void * client_data, int64_t value)
 
 static
 bscribe_status_t
-do_string_data(void * client_data, const unsigned char * buffer, size_t length)
+do_string_data(void * client_data, const uint8_t * buffer, size_t length)
 {
-	char			buf[UINT32_MAXLEN_BASE10+1+1+5];
+	/*
+	 * Allocate enough space for:
+	 *   [longest possible number] + ":" + "\0" + [overflow detect space]
+	 */
+	char			buf[UINT32_MAXLEN_BASE10+1+1+1];
 	bscribe_outstream_t *	stream;
 	bscribe_status_t	status;
 
@@ -127,18 +131,22 @@ do_string_data(void * client_data, const unsigned char * buffer, size_t length)
 	if(length > BSCRIBE_STRING_MAXLEN)
 		return BSCRIBE_STATUS_OUTOFRANGE;
 
+#ifdef	BSCRIBE_PARANOID
 	/*
 	 * BSCRIBE_STRING_MAXLEN is bound within 32-bits for portability,
 	 * regardless of [a larger] size_t.
 	 */
-#ifdef	BSCRIBE_PARANOID
 	if(BSCRIBE_STRING_MAXLEN > UINT32_MAX)
-		return BSCRIBE_STATUS_OUTOFRANGE;
+	{
+		if(length > UINT32_MAX)
+			return BSCRIBE_STATUS_OUTOFRANGE;
+	}
 #endif
 
 	if(snprintf(buf, sizeof(buf), "%" PRId32 ":", (uint32_t) length)
 	 >= sizeof(buf))
 	{
+		/* Should never happen */
 		return BSCRIBE_STATUS_OUTOFRANGE;
 	}
 

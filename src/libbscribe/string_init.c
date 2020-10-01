@@ -5,6 +5,7 @@
  * http://www.triularity.org/
  */
 
+#include <stdint.h>
 #include <stdlib.h>
 
 #include <bscribe.h>
@@ -31,13 +32,13 @@
  *		or another @{code BSCRIBE_STATUS_}* value on failure.
  *
  * @see		bscribe_string_init_utf8(const char *)
- * @see		bscribe_string_create(const unsigned char *, size_t)
+ * @see		bscribe_string_create(const uint8_t *, size_t)
  */
 bscribe_status_t
 bscribe_string_init
 (
 	bscribe_string_t * bstring,
-	const unsigned char * buffer,
+	const uint8_t * buffer,
 	size_t length
 )
 {

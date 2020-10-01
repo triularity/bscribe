@@ -6,6 +6,7 @@
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <bscribe.h>
@@ -47,7 +48,7 @@ bscribe_dict_set
 	uint32_t		hashval;
 	bscribe_dict_entry_t **	entry_pnp;
 	bscribe_dict_entry_t *	entry;
-	unsigned char *		key_buffer;
+	uint8_t *		key_buffer;
 	size_t			key_length;
 
 
@@ -117,7 +118,7 @@ bscribe_dict_set
 		return BSCRIBE_STATUS_OUTOFMEMORY;
 	}
 
-	key_buffer = (unsigned char *) &entry[1];
+	key_buffer = (uint8_t *) &entry[1];
 	memcpy(key_buffer, key->buffer, key_length);
 
 	bscribe_string_init(&entry->key, key_buffer, key_length);

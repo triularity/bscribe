@@ -6,6 +6,7 @@
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <bscribe.h>
@@ -32,12 +33,12 @@
 bscribe_string_t *
 bscribe_string_create
 (
-	const unsigned char * buffer,
+	const uint8_t * buffer,
 	size_t length
 )
 {
 	bscribe_string_t *	bstring;
-	unsigned char *		buffer_copy;
+	uint8_t *		buffer_copy;
 
 
 #ifdef	BSCRIBE_PARANOID
@@ -52,7 +53,7 @@ bscribe_string_create
 	{
 		bstring->base.type = BSCRIBE_TYPE_STRING;
 
-		buffer_copy = (unsigned char *) &bstring[1];
+		buffer_copy = (uint8_t *) &bstring[1];
 		memcpy(buffer_copy, buffer, length);
 
 		bstring->buffer = buffer_copy;

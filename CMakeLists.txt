@@ -11,7 +11,7 @@ set(BSCRIBE_PARANOID_DEBUG FALSE CACHE BOOL "Enable Paranoid Debug Output")
 set(BSCRIBE_WARNFREE TRUE CACHE BOOL "Enable Error on Compile Warnings")
 set(BSCRIBE_EXTRACHECKS TRUE CACHE BOOL "Enable Extra Compiler Sanitization")
 set(BSCRIBE_COMPILE_EXAMPLES TRUE CACHE BOOL "Compile Example Code")
-##set(BSCRIBE_COMPILE_TESTS TRUE CACHE BOOL "Compile Unit Tests")
+set(BSCRIBE_COMPILE_TESTS TRUE CACHE BOOL "Compile Unit Tests")
 set(BSCRIBE_FUZZER TRUE CACHE BOOL "Compile with LLVM libFuzzer")
 
 

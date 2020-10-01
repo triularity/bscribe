@@ -22,9 +22,9 @@ bscribe_string_hash
 	const bscribe_string_t * bstring
 )
 {
-	const unsigned char *	ptr;
-	size_t			len;
-	uint32_t		hashval;
+	const uint8_t *	ptr;
+	size_t		len;
+	uint32_t	hashval;
 
 
 #ifdef	BSCRIBE_PARANOID

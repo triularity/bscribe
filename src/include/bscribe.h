@@ -68,7 +68,7 @@ typedef struct _bscribe_string
 {
 	bscribe_value_t		base;
 
-	const unsigned char *	buffer;
+	const uint8_t *		buffer;
 	size_t			length;
 } bscribe_string_t;
 
@@ -226,7 +226,7 @@ typedef struct _bscribe_event_handler
 	bscribe_status_t	(*list_start)(void * client_data);
 	bscribe_status_t	(*list_end)(void * client_data);
 	bscribe_status_t	(*int_data)(void * client_data, int64_t value);
-	bscribe_status_t	(*string_data)(void * client_data, const unsigned char * buffer, size_t length);
+	bscribe_status_t	(*string_data)(void * client_data, const uint8_t * buffer, size_t length);
 } bscribe_event_handler_t;
 
 
@@ -317,7 +317,7 @@ int			bscribe_string_compare(const bscribe_string_t * bstring1, const bscribe_st
 
 bscribe_string_t *	bscribe_string_copy(const bscribe_string_t * bstring);
 
-bscribe_string_t *	bscribe_string_create(const unsigned char * buffer, size_t length);
+bscribe_string_t *	bscribe_string_create(const uint8_t * buffer, size_t length);
 
 bscribe_string_t *	bscribe_string_create_utf8(const char * value);
 
@@ -327,17 +327,17 @@ bool			bscribe_string_equal(const bscribe_string_t * bstring1, const bscribe_str
 
 uint32_t		bscribe_string_hash(const bscribe_string_t * bstring);
 
-bscribe_status_t	bscribe_string_init(bscribe_string_t * bstring, const unsigned char * buffer, size_t length);
+bscribe_status_t	bscribe_string_init(bscribe_string_t * bstring, const uint8_t * buffer, size_t length);
 
 bscribe_status_t	bscribe_string_init_utf8(bscribe_string_t * bstring, const char * value);
 
-bscribe_status_t	bscribe_string_get(const bscribe_string_t * bstring, size_t offset, unsigned char * buffer, size_t length);
+bscribe_status_t	bscribe_string_get(const bscribe_string_t * bstring, size_t offset, uint8_t * buffer, size_t length);
 
 bscribe_status_t	bscribe_string_get_utf8(const bscribe_string_t * bstring, char * buffer, size_t length);
 
 size_t			bscribe_string_length(const bscribe_string_t * bstring);
 
-bscribe_status_t	bscribe_string_set(bscribe_string_t * bstring, const unsigned char * buffer, size_t length);
+bscribe_status_t	bscribe_string_set(bscribe_string_t * bstring, const uint8_t * buffer, size_t length);
 
 bscribe_status_t	bscribe_string_set_utf8(bscribe_string_t * bstring, const char * value);
 
@@ -390,12 +390,24 @@ extern
 bscribe_event_handler_t	bscribe_writer_handler;
 
 
+/**
+ * Macro to convert a @{type bscribe_dict_t} to a @{type bscribe_value_t}.
+ */
 #define	BSCRIBE_DICT_TO_VALUE(x)	(&(x)->base)
 
+/**
+ * Macro to convert a @{type bscribe_int_t} to a @{type bscribe_value_t}.
+ */
 #define	BSCRIBE_INT_TO_VALUE(x)		(&(x)->base)
 
+/**
+ * Macro to convert a @{type bscribe_list_t} to a @{type bscribe_value_t}.
+ */
 #define	BSCRIBE_LIST_TO_VALUE(x)	(&(x)->base)
 
+/**
+ * Macro to convert a @{type bscribe_string_t} to a @{type bscribe_value_t}.
+ */
 #define	BSCRIBE_STRING_TO_VALUE(x)	(&(x)->base)
 
 

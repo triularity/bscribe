@@ -5,6 +5,7 @@
  * http://www.triularity.org/
  */
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -36,7 +37,7 @@ bscribe_dict_copy
 	bscribe_dict_entry_t **	entry_copy_pnp;
 	bscribe_dict_entry_t *	entry_copy;
 	bscribe_value_t *	value_copy;
-	unsigned char *		key_buffer;
+	uint8_t *		key_buffer;
 	size_t			key_length;
 
 
@@ -91,7 +92,7 @@ bscribe_dict_copy
 				return NULL;
 			}
 
-			key_buffer = (unsigned char *) &entry_copy[1];
+			key_buffer = (uint8_t *) &entry_copy[1];
 			memcpy(key_buffer, entry->key.buffer, key_length);
 
 			bscribe_string_init(

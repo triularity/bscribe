@@ -17,7 +17,7 @@
  * @return	An allocated bscribe string,
  *		or @{const NULL} on failure (e.g. out of memory).
  *
- * @see		bscribe_string_create(const unsigned char *, size_t)
+ * @see		bscribe_string_create(const uint8_t *, size_t)
  * @see		bscribe_string_destroy(bscribe_string_t *)
  */
 bscribe_string_t *

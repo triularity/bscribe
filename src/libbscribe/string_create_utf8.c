@@ -5,6 +5,7 @@
  * http://www.triularity.org/
  */
 
+#include <stdint.h>
 #include <string.h>
 
 #include <bscribe.h>
@@ -26,7 +27,7 @@
  *		or @{const NULL} on failure (e.g. out of memory,
  *		@{param value} is @{const NULL}, string too long).
  *
- * @see		bscribe_string_create(const unsigned char *, size_t)
+ * @see		bscribe_string_create(const uint8_t *, size_t)
  * @see		bscribe_string_destroy(bscribe_string_t *)
  * @see		bscribe_string_init_utf8(const char *)
  */
@@ -41,6 +42,5 @@ bscribe_string_create_utf8
 		return NULL;
 #endif
 
-	return bscribe_string_create(
-		(const unsigned char *) value, strlen(value));
+	return bscribe_string_create((const uint8_t *) value, strlen(value));
 }

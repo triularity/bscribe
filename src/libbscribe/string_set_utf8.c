@@ -5,6 +5,7 @@
  * http://www.triularity.org/
  */
 
+#include <stdint.h>
 #include <string.h>
 
 #include <bscribe.h>
@@ -40,9 +41,9 @@
  *		or another @{code BSCRIBE_STATUS_}* value on failure.
  *
  * @see		bscribe_string_create_utf8(const char *)
- * @see		bscribe_string_init(bscribe_string_t *, const unsigned char *, size_t)
+ * @see		bscribe_string_init(bscribe_string_t *, const uint8_t *, size_t)
  * @see		bscribe_string_init_utf8(bscribe_string_t *, const char *)
- * @see		bscribe_string_set(bscribe_string_t *, const unsigned char *, size_t)
+ * @see		bscribe_string_set(bscribe_string_t *, const uint8_t *, size_t)
  */
 bscribe_status_t
 bscribe_string_set_utf8
@@ -57,5 +58,5 @@ bscribe_string_set_utf8
 #endif
 
 	return bscribe_string_set(
-		bstring, (const unsigned char *) value, strlen(value));
+		bstring, (const uint8_t *) value, strlen(value));
 }

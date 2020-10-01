@@ -28,7 +28,7 @@
  *		@{code - 1} is less than the bscribe string length,
  *		or another @{code BSCRIBE_STATUS_}* value on failure.
  *
- * @see		bscribe_string_get(const bscribe_string_t *, size_t, unsigned char *, size_t)
+ * @see		bscribe_string_get(const bscribe_string_t *, size_t, uint8_t *, size_t)
  */
 bscribe_status_t
 bscribe_string_get_utf8

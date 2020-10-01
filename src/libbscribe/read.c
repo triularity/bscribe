@@ -295,7 +295,7 @@ do_int_data(void * client_data, int64_t value)
 
 static
 bscribe_status_t
-do_string_data(void * client_data, const unsigned char * buffer, size_t length)
+do_string_data(void * client_data, const uint8_t * buffer, size_t length)
 {
 	builder_context_t *	ctx;
 	builder_scope_t *	scope;

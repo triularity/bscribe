@@ -9,10 +9,10 @@ set(BSCRIBE_PARANOID TRUE CACHE BOOL "Enable Paranoid Code Checks")
 set(BSCRIBE_PARANOID_BREAKPOINT FALSE CACHE BOOL "Enable Debugger Breakpoint on Assertion Failure")
 set(BSCRIBE_PARANOID_DEBUG FALSE CACHE BOOL "Enable Paranoid Debug Output")
 set(BSCRIBE_WARNFREE TRUE CACHE BOOL "Enable Error on Compile Warnings")
-set(BSCRIBE_EXTRACHECKS TRUE CACHE BOOL "Enable Extra Compiler Sanitization")
+set(BSCRIBE_EXTRACHECKS FALSE CACHE BOOL "Enable Extra Compiler Sanitization")
 set(BSCRIBE_COMPILE_EXAMPLES TRUE CACHE BOOL "Compile Example Code")
 set(BSCRIBE_COMPILE_TESTS TRUE CACHE BOOL "Compile Unit Tests")
-set(BSCRIBE_FUZZER TRUE CACHE BOOL "Compile with LLVM libFuzzer")
+set(BSCRIBE_FUZZER FALSE CACHE BOOL "Compile with LLVM libFuzzer")
 
 
 include_directories(BEFORE src/include)

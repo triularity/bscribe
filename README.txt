@@ -15,6 +15,9 @@ Supported OS's:
 	FreeBSD (tested on 11.x, 64-bit)
 		clang 4.0 64-bit
 		clang 5.0 64-bit
+	FreeBSD (tested on 12.1, 64-bit)
+		clang 8.0 64-bit
+		clang 9.0 64-bit
 	NetBSD (tested on 6.1.5, 64-bit)
 		gcc 4.5 64-bit
 	OpenBSD (tested on 5.7, 64-bit)
@@ -29,7 +32,7 @@ Planned OS's:
 
 This package contains the components:
  * libbscribe - The bencode library
- * bscribetool - Command line utility to view/convert/manipulate bencode'd files
+ * bscribetool - Command line utility to view/convert/manipulate bencode'd files (soon?)
 
 
 COMPILING
@@ -38,6 +41,18 @@ COMPILING
 A C99 build environment is required (or one with augmented stdint.h / stdbool.h files).
 
 This project uses Cmake (2.8.12+). Configuration options are:
+
+	BSCRIBE_COMPILE_EXAMPLES
+		Compile the example code.
+
+	BSCRIBE_COMPILE_TESTS
+		Compile the unit tests.
+
+	BSCRIBE_EXTRACHECKS
+		Enable extra sanitization checks by compiler.
+
+	BSCRIBE_FUZZER
+		Compile with LLVM libFuzzer (when available).
 
 	BSCRIBE_PARANOID
 		Enable runtime sanity checks.
@@ -48,14 +63,8 @@ This project uses Cmake (2.8.12+). Configuration options are:
 	BSCRIBE_PARANOID_DEBUG
 		Enable paranoid debug output.
 
-	BSCRIBE_COMPILE_EXAMPLES
-		Compile the example code.
-
 	BSCRIBE_WARNFREE
 		Cause the build to fail on compile warnings.
-
-	BSCRIBE_COMPILE_TESTS
-		Compile the unit tests.
 
 
 example$ cd path-to-bscribe-project/
@@ -71,7 +80,7 @@ FILES
 
 src/include/		Public header files.
 src/libbscribe/		Library source code.
-src/bscribetool/	Tool source code.
 tests/			Unit tests.
 docs/			Documentation.
+fuzzer/			LLVM libFuzzer hooks.
 

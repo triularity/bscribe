@@ -1,0 +1,47 @@
+
+bscribeedit
+===========
+
+-batch <path>
+	Add batch update feature.
+
+		<path>	Pattern to element to filter, slash (/) deliminated tree components.
+			Components:
+				{}		Any dictionary element.
+				{name}		The <name> dictionary element.
+				[]		Any list element.
+				[index]		The 0-indexed list element.
+				int		Any integer.
+				str		Any string.
+				*		Any element.
+
+			Escape character in names is a backslah (\).
+				\\		Literal backslash (\).
+				\{		Literal left brace ({).
+				\}		Literal right brace (}).
+				\xHH		The value <HH> decoded as hex.
+
+				All other forms will generate an error.
+
+-delete (batch mode only)
+	Delete matched batch entries. The specificed path must ended with a child component, which will be removed from its parent.
+
+-filtcmd <cmd>
+	Rewrite a value through an external command filter.
+
+	The value is written to the command's stdin and replaced by the stdout value (on success exit status). The value must be a scalar type (i.e. int, string), or a warning will be generated and the element will be passed through unchanged. A trailing newline will be appended to the input and removed from the output unless '-strfmt raw' is specified.
+
+	Environment variables set for each element filtered:
+		BSCRIBE_EDIT_PATH	The field key path.
+					Non-printable characters and backslah will be escaped.
+		BSCRIBE_EDIT_TYPE	The field type (int|str)
+
+-strfmt <type>
+	Use the given string format for filtering (input and output).
+
+	default		The normal format, newline terminated.
+	esc		Special characters are escaped, newline terminated.
+	raw		Unprocessed, not newline terminated.
+	hex		All characters are hex encoded, newline terminated.
+
+

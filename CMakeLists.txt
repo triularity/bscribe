@@ -122,9 +122,17 @@ endif()
 #
 # Extra Compiler Checks
 #
+if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+	if(${CMAKE_C_COMPILER_VERSION} VERSION_GREATER_EQUAL "9.0")
+		set(_BSCRIBE_EXTRACHECKS_SUPPORTED TRUE)
+	endif()
+endif()
+
 if(BSCRIBE_EXTRACHECKS)
-	if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+	if(_BSCRIBE_EXTRACHECKS_SUPPORTED)
 		add_compile_options("-fsanitize=undefined")
+	else()
+		message(WARNING "Ignoring BSCRIBE_EXTRACHECKS: Not supported by ${CMAKE_C_COMPILER_ID}/${CMAKE_C_COMPILER_VERSION}.")
 	endif()
 endif()
 
@@ -132,10 +140,16 @@ endif()
 #
 # LLVM libFuzzer
 #
-if(BSCRIBE_FUZZER)
-	set(FUZZER_SANITIZERS "address")
+if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+	if(${CMAKE_C_COMPILER_VERSION} VERSION_GREATER_EQUAL "9.0")
+		set(_BSCRIBE_FUZZER_SUPPORTED TRUE)
+	endif()
+endif()
 
-	if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+if(BSCRIBE_FUZZER)
+	if(_BSCRIBE_FUZZER_SUPPORTED)
+		set(FUZZER_SANITIZERS "address")
+
 		add_compile_options(
 			"-fsanitize=${FUZZER_SANITIZERS},fuzzer-no-link")
 
@@ -143,7 +157,7 @@ if(BSCRIBE_FUZZER)
 			${CMAKE_EXE_LINKER_FLAGS}
 			"-fsanitize=${FUZZER_SANITIZERS},fuzzer-no-link")
 	else()
-		message(WARNING "libFuzz only supported for Clang")
+		message(WARNING "Ignoring BSCRIBE_FUZZER: Not supported by ${CMAKE_C_COMPILER_ID}/${CMAKE_C_COMPILER_VERSION}.")
 		set(BSCRIBE_FUZZER FALSE)
 	endif()
 endif(BSCRIBE_FUZZER)

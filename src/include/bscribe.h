@@ -1,7 +1,7 @@
 /*
  * @(#) bscribe.h
  *
- * Copyright (c) 2018, 2020, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2020, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -22,6 +22,17 @@ extern "C" {
 #define	BSCRIBE_VERSION_PATCH	0
 
 #define	BSCRIBE_VERSION		((BSCRIBE_VERSION_MAJOR << 16) | (BSCRIBE_VERSION_MINOR << 8) | BSCRIBE_VERSION_PATCH)
+
+
+/*
+ * Non-null handling
+ */
+#ifdef	__GNUC__
+#define	_BSCRIBE_NN	__attribute__((nonnull))
+#define	_BSCRIBE_NN_ENABLED
+#else
+#define	_BSCRIBE_NN
+#endif
 
 
 typedef enum _bscribe_status
@@ -169,7 +180,7 @@ typedef struct _bscribe_instream	bscribe_instream_t;
 
 struct _bscribe_instream
 {
-	bscribe_status_t	(*op_read)(bscribe_instream_t * stream, void * buf, size_t len);
+	bscribe_status_t	(*op_read)(_BSCRIBE_NN bscribe_instream_t * stream, _BSCRIBE_NN void * buf, size_t len);
 };
 
 
@@ -177,7 +188,7 @@ typedef struct _bscribe_outstream	bscribe_outstream_t;
 
 struct _bscribe_outstream
 {
-	bscribe_status_t	(*op_write)(bscribe_outstream_t * stream, const void * buf, size_t len);
+	bscribe_status_t	(*op_write)(_BSCRIBE_NN bscribe_outstream_t * stream, _BSCRIBE_NN const void * buf, size_t len);
 };
 
 
@@ -226,34 +237,34 @@ typedef struct _bscribe_event_handler
 	bscribe_status_t	(*list_start)(void * client_data);
 	bscribe_status_t	(*list_end)(void * client_data);
 	bscribe_status_t	(*int_data)(void * client_data, int64_t value);
-	bscribe_status_t	(*string_data)(void * client_data, const uint8_t * buffer, size_t length);
+	bscribe_status_t	(*string_data)(void * client_data, _BSCRIBE_NN const uint8_t * buffer, size_t length);
 } bscribe_event_handler_t;
 
 
-bscribe_status_t	bscribe_dict_clear(bscribe_dict_t * dict);
+bscribe_status_t	bscribe_dict_clear(_BSCRIBE_NN bscribe_dict_t * dict);
 
-bscribe_dict_t *	bscribe_dict_copy(const bscribe_dict_t * dict);
+bscribe_dict_t *	bscribe_dict_copy(_BSCRIBE_NN const bscribe_dict_t * dict);
 
 bscribe_dict_t *	bscribe_dict_create(size_t hashsize);
 
-bscribe_status_t	bscribe_dict_destroy(bscribe_dict_t * dict);
+bscribe_status_t	bscribe_dict_destroy(_BSCRIBE_NN bscribe_dict_t * dict);
 
-const bscribe_value_t *	bscribe_dict_get(const bscribe_dict_t * dict, const bscribe_string_t * key);
+const bscribe_value_t *	bscribe_dict_get(_BSCRIBE_NN const bscribe_dict_t * dict, _BSCRIBE_NN const bscribe_string_t * key);
 
-bscribe_status_t	bscribe_dict_iterate(const bscribe_dict_t * dict, bscribe_keyvalue_callback_t callback, void * client_data);
+bscribe_status_t	bscribe_dict_iterate(_BSCRIBE_NN const bscribe_dict_t * dict, _BSCRIBE_NN bscribe_keyvalue_callback_t callback, void * client_data);
 
-bscribe_status_t	bscribe_dict_iterate_ordered(const bscribe_dict_t * dict, bscribe_keyvalue_callback_t callback, void * client_data);
+bscribe_status_t	bscribe_dict_iterate_ordered(_BSCRIBE_NN const bscribe_dict_t * dict, _BSCRIBE_NN bscribe_keyvalue_callback_t callback, void * client_data);
 
-bscribe_status_t	bscribe_dict_iterate_keys(const bscribe_dict_t * dict, bscribe_string_callback_t callback, void * client_data);
+bscribe_status_t	bscribe_dict_iterate_keys(_BSCRIBE_NN const bscribe_dict_t * dict, _BSCRIBE_NN bscribe_string_callback_t callback, void * client_data);
 
-size_t			bscribe_dict_length(const bscribe_dict_t * bdict);
+size_t			bscribe_dict_length(_BSCRIBE_NN const bscribe_dict_t * bdict);
 
-bscribe_status_t	bscribe_dict_remove(bscribe_dict_t * dict, const bscribe_string_t * key);
+bscribe_status_t	bscribe_dict_remove(_BSCRIBE_NN bscribe_dict_t * dict, _BSCRIBE_NN const bscribe_string_t * key);
 
-bscribe_status_t	bscribe_dict_set(bscribe_dict_t * dict, const bscribe_string_t * key, bscribe_value_t * value);
+bscribe_status_t	bscribe_dict_set(_BSCRIBE_NN bscribe_dict_t * dict, _BSCRIBE_NN const bscribe_string_t * key, bscribe_value_t * value);
 
 
-bscribe_int_t *		bscribe_int_copy(const bscribe_int_t * bint);
+bscribe_int_t *		bscribe_int_copy(_BSCRIBE_NN const bscribe_int_t * bint);
 
 bscribe_int_t *		bscribe_int_create(void);
 
@@ -263,127 +274,132 @@ bscribe_int_t *		bscribe_int_create_i64(int64_t value);
 
 bscribe_int_t *		bscribe_int_create_u32(uint32_t value);
 
-bscribe_status_t	bscribe_int_destroy(bscribe_int_t * bint);
+bscribe_status_t	bscribe_int_destroy(_BSCRIBE_NN bscribe_int_t * bint);
 
-bscribe_status_t	bscribe_int_get_i32(const bscribe_int_t * bint, int32_t * valuep);
+bscribe_status_t	bscribe_int_get_i32(_BSCRIBE_NN const bscribe_int_t * bint, int32_t * valuep);
 
-bscribe_status_t	bscribe_int_get_i64(const bscribe_int_t * bint, int64_t * valuep);
+bscribe_status_t	bscribe_int_get_i64(_BSCRIBE_NN const bscribe_int_t * bint, int64_t * valuep);
 
-bscribe_status_t	bscribe_int_get_u32(const bscribe_int_t * bint, uint32_t * valuep);
+bscribe_status_t	bscribe_int_get_u32(_BSCRIBE_NN const bscribe_int_t * bint, uint32_t * valuep);
 
-bscribe_status_t	bscribe_int_get_u64(const bscribe_int_t * bint, uint64_t * valuep);
+bscribe_status_t	bscribe_int_get_u64(_BSCRIBE_NN const bscribe_int_t * bint, uint64_t * valuep);
 
-void			bscribe_int_init(bscribe_int_t * bint);
+void			bscribe_int_init(_BSCRIBE_NN bscribe_int_t * bint);
 
-void			bscribe_int_init_i32(bscribe_int_t * bint, int32_t value);
+void			bscribe_int_init_i32(_BSCRIBE_NN bscribe_int_t * bint, int32_t value);
 
-void			bscribe_int_init_i64(bscribe_int_t * bint, int64_t value);
+void			bscribe_int_init_i64(_BSCRIBE_NN bscribe_int_t * bint, int64_t value);
 
-void			bscribe_int_init_u32(bscribe_int_t * bint, uint32_t value);
+void			bscribe_int_init_u32(_BSCRIBE_NN bscribe_int_t * bint, uint32_t value);
 
-bscribe_status_t	bscribe_int_set_i32(bscribe_int_t * bint, int32_t value);
+bscribe_status_t	bscribe_int_set_i32(_BSCRIBE_NN bscribe_int_t * bint, int32_t value);
 
-bscribe_status_t	bscribe_int_set_i64(bscribe_int_t * bint, int64_t value);
+bscribe_status_t	bscribe_int_set_i64(_BSCRIBE_NN bscribe_int_t * bint, int64_t value);
 
-bscribe_status_t	bscribe_int_set_u32(bscribe_int_t * bint, uint32_t value);
+bscribe_status_t	bscribe_int_set_u32(_BSCRIBE_NN bscribe_int_t * bint, uint32_t value);
 
-bscribe_status_t	bscribe_int_set_u64(bscribe_int_t * bint, uint64_t value);
+bscribe_status_t	bscribe_int_set_u64(_BSCRIBE_NN bscribe_int_t * bint, uint64_t value);
 
 
-bscribe_status_t	bscribe_list_add(bscribe_list_t * list, bscribe_value_t * value);
+bscribe_status_t	bscribe_list_add(_BSCRIBE_NN bscribe_list_t * list, bscribe_value_t * value);
 
-bscribe_status_t	bscribe_list_clear(bscribe_list_t * list);
+bscribe_status_t	bscribe_list_clear(_BSCRIBE_NN bscribe_list_t * list);
 
-bscribe_list_t *	bscribe_list_copy(const bscribe_list_t * list);
+bscribe_list_t *	bscribe_list_copy(_BSCRIBE_NN const bscribe_list_t * list);
 
 bscribe_list_t *	bscribe_list_create(void);
 
-bscribe_status_t	bscribe_list_destroy(bscribe_list_t * list);
+bscribe_status_t	bscribe_list_destroy(_BSCRIBE_NN bscribe_list_t * list);
 
-const bscribe_value_t *	bscribe_list_get(const bscribe_list_t * list, size_t index);
+const bscribe_value_t *	bscribe_list_get(_BSCRIBE_NN const bscribe_list_t * list, size_t index);
 
-bscribe_status_t	bscribe_list_insert(bscribe_list_t * list, bscribe_value_t * value, size_t index);
+bscribe_status_t	bscribe_list_insert(_BSCRIBE_NN bscribe_list_t * list, bscribe_value_t * value, size_t index);
 
-bscribe_status_t	bscribe_list_iterate(const bscribe_list_t * list, bscribe_value_callback_t callback, void * client_data);
+bscribe_status_t	bscribe_list_iterate(_BSCRIBE_NN const bscribe_list_t * list, _BSCRIBE_NN bscribe_value_callback_t callback, void * client_data);
 
-size_t			bscribe_list_length(const bscribe_list_t * list);
+size_t			bscribe_list_length(_BSCRIBE_NN const bscribe_list_t * list);
 
-bscribe_status_t	bscribe_list_remove(bscribe_list_t * list, size_t index);
+bscribe_status_t	bscribe_list_remove(_BSCRIBE_NN bscribe_list_t * list, size_t index);
 
-bscribe_status_t	bscribe_list_remove_value(bscribe_list_t * list, bscribe_value_t * value);
-
-
-int			bscribe_string_compare(const bscribe_string_t * bstring1, const bscribe_string_t * bstring2);
-
-bscribe_string_t *	bscribe_string_copy(const bscribe_string_t * bstring);
-
-bscribe_string_t *	bscribe_string_create(const uint8_t * buffer, size_t length);
-
-bscribe_string_t *	bscribe_string_create_utf8(const char * value);
-
-bscribe_status_t	bscribe_string_destroy(bscribe_string_t * bstring);
-
-bool			bscribe_string_equal(const bscribe_string_t * bstring1, const bscribe_string_t * bstring2);
-
-uint32_t		bscribe_string_hash(const bscribe_string_t * bstring);
-
-bscribe_status_t	bscribe_string_init(bscribe_string_t * bstring, const uint8_t * buffer, size_t length);
-
-bscribe_status_t	bscribe_string_init_utf8(bscribe_string_t * bstring, const char * value);
-
-bscribe_status_t	bscribe_string_get(const bscribe_string_t * bstring, size_t offset, uint8_t * buffer, size_t length);
-
-bscribe_status_t	bscribe_string_get_utf8(const bscribe_string_t * bstring, char * buffer, size_t length);
-
-size_t			bscribe_string_length(const bscribe_string_t * bstring);
-
-bscribe_status_t	bscribe_string_set(bscribe_string_t * bstring, const uint8_t * buffer, size_t length);
-
-bscribe_status_t	bscribe_string_set_utf8(bscribe_string_t * bstring, const char * value);
+bscribe_status_t	bscribe_list_remove_value(_BSCRIBE_NN bscribe_list_t * list, bscribe_value_t * value);
 
 
-bscribe_value_t *	bscribe_value_copy(const bscribe_value_t * value);
+int			bscribe_string_compare(_BSCRIBE_NN const bscribe_string_t * bstring1, _BSCRIBE_NN const bscribe_string_t * bstring2);
 
-bscribe_status_t	bscribe_value_destroy(bscribe_value_t * value);
+bscribe_string_t *	bscribe_string_copy(_BSCRIBE_NN const bscribe_string_t * bstring);
 
-bscribe_dict_t *	bscribe_value_to_dict(bscribe_value_t * value);
+bscribe_string_t *	bscribe_string_create(_BSCRIBE_NN const uint8_t * buffer, size_t length);
 
-bscribe_int_t *		bscribe_value_to_int(bscribe_value_t * value);
+bscribe_string_t *	bscribe_string_create_utf8(_BSCRIBE_NN const char * value);
 
-bscribe_list_t *	bscribe_value_to_list(bscribe_value_t * value);
+bscribe_status_t	bscribe_string_destroy(_BSCRIBE_NN bscribe_string_t * bstring);
 
-bscribe_string_t *	bscribe_value_to_string(bscribe_value_t * value);
+bool			bscribe_string_equal(_BSCRIBE_NN const bscribe_string_t * bstring1, _BSCRIBE_NN const bscribe_string_t * bstring2);
 
-bscribe_type_t		bscribe_value_type(const bscribe_value_t * value);
+uint32_t		bscribe_string_hash(_BSCRIBE_NN const bscribe_string_t * bstring);
 
+bscribe_status_t	bscribe_string_init(_BSCRIBE_NN bscribe_string_t * bstring, _BSCRIBE_NN const uint8_t * buffer, size_t length);
 
-bscribe_status_t	bscribe_read(bscribe_instream_t * stream, bscribe_value_t ** valuep);
+bscribe_status_t	bscribe_string_init_utf8(_BSCRIBE_NN bscribe_string_t * bstring, _BSCRIBE_NN const char * value);
 
-bscribe_status_t	bscribe_write(bscribe_outstream_t * stream, const bscribe_value_t * value);
+bscribe_status_t	bscribe_string_get(_BSCRIBE_NN const bscribe_string_t * bstring, size_t offset, _BSCRIBE_NN uint8_t * buffer, size_t length);
 
-bscribe_status_t	bscribe_parse(bscribe_instream_t * stream, bscribe_event_handler_t * handler, void * client_data);
+bscribe_status_t	bscribe_string_get_utf8(_BSCRIBE_NN const bscribe_string_t * bstring, _BSCRIBE_NN char * buffer, size_t length);
 
+size_t			bscribe_string_length(_BSCRIBE_NN const bscribe_string_t * bstring);
 
-bscribe_instream_t *	bscribe_instream_buffer_init(bscribe_instream_buffer_t * stream, const uint8_t * buf, size_t len);
+bscribe_status_t	bscribe_string_set(_BSCRIBE_NN bscribe_string_t * bstring, _BSCRIBE_NN const uint8_t * buffer, size_t length);
 
-bscribe_status_t	_bscribe_instream_buffer_read(bscribe_instream_t * stream, void * buf, size_t len);
-
-bscribe_instream_t *	bscribe_instream_fd_init(bscribe_instream_fd_t * stream, int fd);
-
-bscribe_status_t	_bscribe_instream_fd_read(bscribe_instream_t * stream, void * buf, size_t len);
-
-bscribe_instream_t *	bscribe_instream_stdio_init(bscribe_instream_stdio_t * stream, FILE * fp);
-
-bscribe_status_t	_bscribe_instream_stdio_read(bscribe_instream_t * stream, void * buf, size_t len);
+bscribe_status_t	bscribe_string_set_utf8(_BSCRIBE_NN bscribe_string_t * bstring, _BSCRIBE_NN const char * value);
 
 
-bscribe_outstream_t *	bscribe_outstream_fd_init(bscribe_outstream_fd_t * stream, int fd);
+bscribe_value_t *	bscribe_value_copy(_BSCRIBE_NN const bscribe_value_t * value);
 
-bscribe_status_t	_bscribe_outstream_fd_write(bscribe_outstream_t * stream, const void * buf, size_t len);
+bscribe_status_t	bscribe_value_destroy(_BSCRIBE_NN bscribe_value_t * value);
 
-bscribe_outstream_t *	bscribe_outstream_stdio_init(bscribe_outstream_stdio_t * stream, FILE * fp);
+bscribe_dict_t *	bscribe_value_to_dict(_BSCRIBE_NN bscribe_value_t * value);
 
-bscribe_status_t	_bscribe_outstream_stdio_write(bscribe_outstream_t * stream, const void * buf, size_t len);
+bscribe_int_t *		bscribe_value_to_int(_BSCRIBE_NN bscribe_value_t * value);
+
+bscribe_list_t *	bscribe_value_to_list(_BSCRIBE_NN bscribe_value_t * value);
+
+bscribe_string_t *	bscribe_value_to_string(_BSCRIBE_NN bscribe_value_t * value);
+
+bscribe_type_t		bscribe_value_type(_BSCRIBE_NN const bscribe_value_t * value);
+
+
+bscribe_status_t	bscribe_read(_BSCRIBE_NN bscribe_instream_t * stream, _BSCRIBE_NN bscribe_value_t ** valuep);
+
+bscribe_status_t	bscribe_write(_BSCRIBE_NN bscribe_outstream_t * stream, _BSCRIBE_NN const bscribe_value_t * value);
+
+bscribe_status_t	bscribe_parse(_BSCRIBE_NN bscribe_instream_t * stream, _BSCRIBE_NN bscribe_event_handler_t * handler, void * client_data);
+
+
+_BSCRIBE_NN
+bscribe_instream_t *	bscribe_instream_buffer_init(_BSCRIBE_NN bscribe_instream_buffer_t * stream, _BSCRIBE_NN const uint8_t * buf, size_t len);
+
+bscribe_status_t	_bscribe_instream_buffer_read(_BSCRIBE_NN bscribe_instream_t * stream, _BSCRIBE_NN void * buf, size_t len);
+
+_BSCRIBE_NN
+bscribe_instream_t *	bscribe_instream_fd_init(_BSCRIBE_NN bscribe_instream_fd_t * stream, int fd);
+
+bscribe_status_t	_bscribe_instream_fd_read(_BSCRIBE_NN bscribe_instream_t * stream, _BSCRIBE_NN void * buf, size_t len);
+
+_BSCRIBE_NN
+bscribe_instream_t *	bscribe_instream_stdio_init(_BSCRIBE_NN bscribe_instream_stdio_t * stream, _BSCRIBE_NN FILE * fp);
+
+bscribe_status_t	_bscribe_instream_stdio_read(_BSCRIBE_NN bscribe_instream_t * stream, _BSCRIBE_NN void * buf, size_t len);
+
+
+_BSCRIBE_NN
+bscribe_outstream_t *	bscribe_outstream_fd_init(_BSCRIBE_NN bscribe_outstream_fd_t * stream, int fd);
+
+bscribe_status_t	_bscribe_outstream_fd_write(_BSCRIBE_NN bscribe_outstream_t * stream, const void * buf, size_t len);
+
+_BSCRIBE_NN
+bscribe_outstream_t *	bscribe_outstream_stdio_init(_BSCRIBE_NN bscribe_outstream_stdio_t * stream, FILE * fp);
+
+bscribe_status_t	_bscribe_outstream_stdio_write(_BSCRIBE_NN bscribe_outstream_t * stream, const void * buf, size_t len);
 
 
 extern

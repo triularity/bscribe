@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/string_get_utf8.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -11,24 +11,28 @@
 #include <bscribe.h>
 
 /**
- * Get the contents of a bscribe string as a nul-terminated UTF-8 (or ASCII)
+ * Get the contents of a bscribe string as a NUL-terminated UTF-8 (or ASCII)
  * string.
  *
  * @note	The buffer @{param length} must be large enough to hold the
- *		entire contents of the bscribe string plus the trailing nul.
+ *		entire contents of the bscribe string plus the trailing
+ *		@{code NUL}.
+ *
+ * @note	To get binary string content, use
+ *		@{func bscribe_string_get(const bscribe_string_t *, size_t, uint8_t *, size_t)},
+ *		instead.
  *
  * @param	bstring		The bscribe string.
  * @param	buffer		The destination buffer.
  * @param	length		The size of the buffer.
  *
  * @return	@{const BSCRIBE_STATUS_SUCCESS} if the contents were copied,
- *		@{const BSCRIBE_STATUS_INVALID} if @{param buffer} is
- *		@{code NULL},
  *		@{const BSCRIBE_STATUS_OUTOFRANGE} if @{param length}
- *		@{code - 1} is less than the bscribe string length,
- *		or another @{code BSCRIBE_STATUS_}* value on failure.
+ *			@{code - 1} is less than the bscribe string length.
  *
  * @see		bscribe_string_get(const bscribe_string_t *, size_t, uint8_t *, size_t)
+ * @see		bscribe_string_set(bscribe_string_t *, const uint8_t *, size_t)
+ * @see		bscribe_string_set_utf8(bscribe_string_t *, const char *)
  */
 bscribe_status_t
 bscribe_string_get_utf8
@@ -40,11 +44,6 @@ bscribe_string_get_utf8
 {
 	size_t		slen;
 
-
-#ifdef	BSCRIBE_PARANOID
-	if(buffer == NULL)
-		return BSCRIBE_STATUS_INVALID;
-#endif
 
 	slen = bstring->length;
 

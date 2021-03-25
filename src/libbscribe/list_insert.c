@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/list_insert.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -24,12 +24,16 @@
  * @param	index		The position to insert at.
  *
  * @return	@{const BSCRIBE_STATUS_SUCCESS} if the value was added,
- *		@{const BSCRIBE_STATUS_OUTOFMEMORY} on memory failure,
- *		@{const BSCRIBE_STATUS_OUTOFRANGE} if the length would
- *		exceed @{const BSCRIBE_LIST_MAXLEN},
- *		@{const BSCRIBE_STATUS_OUTOFRANGE} if @{param index} is beyond
- *		the end of the list,
- *		or another @{code BSCRIBE_STATUS_}* value on failure.
+ *		@{const BSCRIBE_STATUS_OUTOFMEMORY} if memory allocation fails,
+ *		@{const BSCRIBE_STATUS_OUTOFRANGE} if the list length would
+ *			exceed @{const BSCRIBE_LIST_MAXLEN},
+ *		@{const BSCRIBE_STATUS_INVALID} if @{param value}
+ *			is @{const NULL},
+ *		@{const BSCRIBE_STATUS_CORRUPT} if data corruption was
+ *			detected,
+ *		or when extra checks are enabled:
+ *		@{const BSCRIBE_STATUS_MISMATCH} if @{param blist}'s type
+ *			is not @{const BSCRIBE_TYPE_LIST}.
  *
  * @see		bscribe_list_add(bscribe_list_t *, bscribe_value_t *)
  * @see		bscribe_list_get(const bscribe_list_t *, size_t)
@@ -49,24 +53,15 @@ bscribe_list_insert
 
 
 #ifdef	BSCRIBE_PARANOID
-	if(blist == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_list_insert() - blist == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
-	}
-
 	if(blist->base.type != BSCRIBE_TYPE_LIST)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_list_insert() - blist->base.type != BSCRIBE_TYPE_LIST\n");
+		BSCRIBE_ASSERT_FAIL("blist->base.type != BSCRIBE_TYPE_LIST\n");
 		return BSCRIBE_STATUS_MISMATCH;
 	}
+#endif
 
 	if(value == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_list_insert() - value == NULL\n");
 		return BSCRIBE_STATUS_INVALID;
-	}
-#endif	/* BSCRIBE_PARANOID */
 
 	if(index > blist->length)
 		return BSCRIBE_STATUS_OUTOFRANGE;
@@ -85,7 +80,10 @@ bscribe_list_insert
 		while(index != 0)
 		{
 			if((entry = *entry_pnp) == NULL)
-				break;
+			{
+				BSCRIBE_ASSERT_FAIL("*entry_pnp == NULL\n");
+				return BSCRIBE_STATUS_CORRUPT;
+			}
 
 			entry_pnp = &entry->next;
 			index--;

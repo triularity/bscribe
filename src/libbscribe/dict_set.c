@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/dict_set.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -17,22 +17,32 @@
  *
  * @note	The @{param value} given must be an allocated value and
  *		becomes owned by this dictionary. Values added to this
- *		dictionary will automatically be destroyed using
- *		@{func bscribe_value_destroy} when replaced, removed or
- *		when this dictionary is destroyed.
+ *		dictionary will automatically be destroyed, using
+ *		@{func bscribe_value_destroy(bscribe_value_t *)}
+ *		when replaced, removed, including when this dictionary
+ *		is destroyed.
+ *
+ * @note	If a value already exists for the @{param key} and
+ *		@{func bscribe_value_destroy} returns a failure status,
+ *		then the entry will remain unchanged and that status
+ *		will be returned.
  *
  * @param	bdict		The bscribe dictionary.
  * @param	key		A dictionary key.
  * @param	value		An allocated bscribe value.
  *
  * @return	@{const BSCRIBE_STATUS_SUCCESS} if successful,
- *		@{const BSCRIBE_STATUS_MISMATCH} if the type is not
- *		@{const BSCRIBE_TYPE_DICT},
- *		@{const BSCRIBE_STATUS_OUTOFMEMORY} on memory failure,
- *		@{const BSCRIBE_STATUS_OUTOFRANGE} if the count would
- *		exceed @{const BSCRIBE_DICT_MAXLEN},
- *		or another @{code BSCRIBE_STATUS_}* value on failure.
+ *		@{const BSCRIBE_STATUS_OUTOFMEMORY} if memory allocation fails,
+ *		@{const BSCRIBE_STATUS_OUTOFRANGE} if the entry count would
+ *			exceed @{const BSCRIBE_DICT_MAXLEN},
+ *		a failure status from the value destroy function,
+ *		or when extra checks are enabled:
+ *		@{const BSCRIBE_STATUS_MISMATCH} if @{param bdict}'s type
+ *			is not @{const BSCRIBE_TYPE_DICT},
+ *		@{const BSCRIBE_STATUS_MISMATCH} if @{param key}'s type
+ *			is not @{const BSCRIBE_TYPE_STRING}.
  *
+ * @see		bscribe_dict_clear(bscribe_value_t *)
  * @see		bscribe_dict_get(bscribe_dict_t *, const bscribe_string_t *)
  * @see		bscribe_dict_remove(bscribe_dict_t *, const bscribe_string_t *)
  * @see		bscribe_value_destroy(bscribe_value_t *)
@@ -50,37 +60,20 @@ bscribe_dict_set
 	bscribe_dict_entry_t *	entry;
 	uint8_t *		key_buffer;
 	size_t			key_length;
+	bscribe_status_t	status;
 
 
 #ifdef	BSCRIBE_PARANOID
-	if(bdict == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_set() - bdict == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
-	}
-
 	if(bdict->base.type != BSCRIBE_TYPE_DICT)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_set() - bdict->base.type != BSCRIBE_TYPE_DICT\n");
+		BSCRIBE_ASSERT_FAIL("bdict->base.type != BSCRIBE_TYPE_DICT\n");
 		return BSCRIBE_STATUS_MISMATCH;
-	}
-
-	if(key == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_set() - key == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
 	}
 
 	if(key->base.type != BSCRIBE_TYPE_STRING)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_set() - key->base.type != BSCRIBE_TYPE_STRING\n");
+		BSCRIBE_ASSERT_FAIL("key->base.type != BSCRIBE_TYPE_STRING\n");
 		return BSCRIBE_STATUS_MISMATCH;
-	}
-
-	if(value == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_set() - value == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
 	}
 #endif	/* BSCRIBE_PARANOID */
 
@@ -94,7 +87,11 @@ bscribe_dict_set
 		{
 			if(bscribe_string_equal(&entry->key, key))
 			{
-				(void) bscribe_value_destroy(entry->value);
+				status = bscribe_value_destroy(entry->value);
+
+				if(status != BSCRIBE_STATUS_SUCCESS)
+					return status;
+
 				entry->value = value;
 
 				return BSCRIBE_STATUS_SUCCESS;
@@ -112,11 +109,8 @@ bscribe_dict_set
 
 	key_length = key->length;
 
-	if((entry = malloc(sizeof(bscribe_dict_entry_t) + key_length))
-	 == NULL)
-	{
+	if((entry = malloc(sizeof(bscribe_dict_entry_t) + key_length)) == NULL)
 		return BSCRIBE_STATUS_OUTOFMEMORY;
-	}
 
 	key_buffer = (uint8_t *) &entry[1];
 	memcpy(key_buffer, key->buffer, key_length);

@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/list_destroy.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -13,10 +13,13 @@
 /**
  * Destroy a bscribe list.
  *
- * @note	This will call @{func bscribe_value_destroy} on all values
- *		in the list. The return status from the value destroy
- *		function will be ignored, resulting in potential memory leaks.
- *		Under normal conditions, this should never happen.
+ * @note	Using a @{param blist} value not returned from
+ *		@{func bscribe_list_create()} or
+ *		@{func bscribe_list_copy(const bscribe_list_t *)}
+ *		will have undefined results.
+ *
+ * @note	This will call @{func bscribe_list_clear(bscribe_list_t *)}
+ *		to remove all items from the list.
  *
  * @note	Under normal conditions, this function should never fail.
  *		Such a failure may indicate memory corruption or a programming
@@ -25,7 +28,11 @@
  * @param	blist		A bscribe list.
  *
  * @return	@{const BSCRIBE_STATUS_SUCCESS} if the list was destroyed,
- *		or another @{code BSCRIBE_STATUS_}* value on failure.
+ *		a failure status from
+ *			@{func bscribe_list_clear(bscribe_list_t *)},
+ *		or when extra checks are enabled:
+ *		@{const BSCRIBE_STATUS_MISMATCH} if @{param blist}'s type
+ *			is not @{const BSCRIBE_TYPE_LIST}.
  *
  * @see		bscribe_list_create()
  * @see		bscribe_list_copy(const bscribe_list_t *)
@@ -42,18 +49,12 @@ bscribe_list_destroy
 
 
 #ifdef	BSCRIBE_PARANOID
-	if(blist == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_list_destroy() - blist == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
-	}
-
 	if(blist->base.type != BSCRIBE_TYPE_LIST)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_list_destroy() - blist->base.type != BSCRIBE_TYPE_LIST\n");
+		BSCRIBE_ASSERT_FAIL("blist->base.type != BSCRIBE_TYPE_LIST\n");
 		return BSCRIBE_STATUS_MISMATCH;
 	}
-#endif	/* BSCRIBE_PARANOID */
+#endif
 
 	if((status = bscribe_list_clear(blist)) != BSCRIBE_STATUS_SUCCESS)
 		return status;

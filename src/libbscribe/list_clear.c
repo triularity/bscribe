@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/list_clear.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -14,9 +14,9 @@
  * Remove all elements from a bscribe list.
  *
  * @note	This will call @{func bscribe_value_destroy} on all values
- *		in the list. The return status from the value destroy
- *		function will be ignored, resulting in potential memory leaks.
- *		Under normal conditions, this should never happen.
+ *		in the list. If the return status from the value destroy
+ *		function is not @{const BSCRIBE_STATUS_SUCCESS}, then that
+ *		status will be returned, leaving some elements unremoved.
  *
  * @note	Under normal conditions, this function should never fail.
  *		Such a failure may indicate memory corruption or a programming
@@ -25,7 +25,12 @@
  * @param	blist		A bscribe list.
  *
  * @return	@{const BSCRIBE_STATUS_SUCCESS} if it was cleared,
- *		or another @{code BSCRIBE_STATUS_}* value on failure.
+ *		a failure status from the value destroy function,
+ *		or when extra checks are enabled:
+ *		@{const BSCRIBE_STATUS_MISMATCH} if @{param blist}'s type
+ *			is not @{const BSCRIBE_TYPE_LIST},
+ *		@{const BSCRIBE_STATUS_CORRUPT} if data corruption was
+ *			detected.
  *
  * @see		bscribe_list_create()
  * @see		bscribe_list_copy(const bscribe_list_t *)
@@ -39,35 +44,48 @@ bscribe_list_clear
 {
 	bscribe_list_entry_t *	entry;
 	bscribe_list_entry_t *	entry_next;
+	bscribe_status_t	status;
 
 
 #ifdef	BSCRIBE_PARANOID
-	if(blist == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_list_clear() - blist == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
-	}
-
 	if(blist->base.type != BSCRIBE_TYPE_LIST)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_list_clear() - blist->base.type != BSCRIBE_TYPE_LIST\n");
+		BSCRIBE_ASSERT_FAIL("blist->base.type != BSCRIBE_TYPE_LIST\n");
 		return BSCRIBE_STATUS_MISMATCH;
 	}
-#endif	/* BSCRIBE_PARANOID */
+#endif
+
+	if(blist->length == 0)
+		return BSCRIBE_STATUS_SUCCESS;
 
 	entry = blist->entries;
 
 	while(entry != NULL)
 	{
+		status = bscribe_value_destroy(entry->value);
+
+		if(status != BSCRIBE_STATUS_SUCCESS)
+		{
+			blist->entries = entry;
+
+			return status;
+		}
+
 		entry_next = entry->next;
-
-		bscribe_value_destroy(entry->value);
 		free(entry);
-
 		entry = entry_next;
+
+		blist->length--;
 	}
 
-	blist->length = 0;
+#ifdef	BSCRIBE_PARANOID
+	if(blist->length != 0)
+	{
+		BSCRIBE_ASSERT_FAIL("blist->length != 0");
+		return BSCRIBE_STATUS_CORRUPT;
+	}
+#endif
+
 	blist->entries = NULL;
 	blist->last_pnp = &blist->entries;
 

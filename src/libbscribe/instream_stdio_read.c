@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/instream_stdio_read.c
  *
- * Copyright (c) 2018, 2020, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -13,16 +13,18 @@
 /**
  * Read bytes from a stdio (@{code FILE *}) based bscribe input stream.
  *
+ * @note	If anything other than @{const BSCRIBE_STATUS_SUCCESS} is
+ *		returned, then the stream will be in an implementation defined
+ *		read state.
+ *
  * @param	stream		A bscribe input stream.
  * @param	buf		The buffer to read the data into.
  * @param	len		The number of bytes to read.
  *
  * @return	@{const BSCRIBE_STATUS_SUCCESS} on success,
- *		@{const BSCRIBE_STATUS_INVALID} if @{param stream},
- *		@{param stream}@{code ->fp} or @{param buf} is @{const NULL},
- *		@{const BSCRIBE_STATUS_IOERROR} on I/O error,
- *		@{const BSCRIBE_STATUS_EOF} if @{param len} bytes were not
- *		read before end-of-file.
+ *		@{const BSCRIBE_STATUS_IOERROR} if an I/O error occured,
+ *		or @{const BSCRIBE_STATUS_EOF} if @{param len} bytes were not
+ *			read before the end of stream was reached.
  */
 bscribe_status_t
 _bscribe_instream_stdio_read
@@ -36,17 +38,7 @@ _bscribe_instream_stdio_read
 	size_t		amount;
 
 
-#ifdef	BSCRIBE_PARANOID
-	if((stream == NULL) || (buf == NULL))
-		return BSCRIBE_STATUS_INVALID;
-#endif
-
 	fp = ((bscribe_instream_stdio_t *) stream)->fp;
-
-#ifdef	BSCRIBE_PARANOID
-	if(fp == NULL)
-		return BSCRIBE_STATUS_INVALID;
-#endif
 
 	while(len != 0)
 	{

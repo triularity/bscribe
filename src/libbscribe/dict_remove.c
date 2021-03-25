@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/dict_remove.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -15,19 +15,23 @@
 /**
  * Remove a bscribe dictionary entry.
  *
- * @note	This will call @{func bscribe_value_destroy} on the entry
- *		value, if found. The return value from the value destroy
- *		function will be ignored, resulting in potential memory leaks.
+ * @note	This will call @{func bscribe_value_destroy} on the entry's
+ *		value, if found. If the return value from that function is
+ *		not @{const BSCRIBE_STATUS_SUCCESS}, the entry will not be
+ *		removed, and its status will be returned.
  *		Under normal conditions, this should never happen.
  *
  * @param	bdict		The bscribe dictionary.
  * @param	key		A dictionary key.
  *
  * @return	@{const BSCRIBE_STATUS_SUCCESS} if the entry was removed,
- *		@{const BSCRIBE_STATUS_NOTFOUND} if they key does not exist,
- *		@{const BSCRIBE_STATUS_MISMATCH} if the type is not
- *		@{const BSCRIBE_TYPE_DICT},
- *		or another @{code BSCRIBE_STATUS_}* value on failure.
+ *		@{const BSCRIBE_STATUS_NOTFOUND} if the key does not exist,
+ *		a failure status from the value destroy function,
+ *		or when extra checks are enabled:
+ *		@{const BSCRIBE_STATUS_MISMATCH} if @{param bdict}'s type
+ *			is not @{const BSCRIBE_TYPE_DICT},
+ *		@{const BSCRIBE_STATUS_MISMATCH} if @{param key}'s type
+ *			is not @{const BSCRIBE_TYPE_STRING}.
  *
  * @see		bscribe_dict_set(bscribe_dict_t *, const bscribe_string_t *, bscribe_value_t *)
  */
@@ -41,30 +45,19 @@ bscribe_dict_remove
 	uint32_t		hashval;
 	bscribe_dict_entry_t **	entry_pnp;
 	bscribe_dict_entry_t *	entry;
+	bscribe_status_t	status;
 
 
 #ifdef	BSCRIBE_PARANOID
-	if(bdict == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_remove() - bdict == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
-	}
-
 	if(bdict->base.type != BSCRIBE_TYPE_DICT)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_remove() - bdict->base.type != BSCRIBE_TYPE_DICT\n");
+		BSCRIBE_ASSERT_FAIL("bdict->base.type != BSCRIBE_TYPE_DICT\n");
 		return BSCRIBE_STATUS_MISMATCH;
-	}
-
-	if(key == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_remove() - key == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
 	}
 
 	if(key->base.type != BSCRIBE_TYPE_STRING)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_remove() - key->base.type != BSCRIBE_TYPE_STRING\n");
+		BSCRIBE_ASSERT_FAIL("key->base.type != BSCRIBE_TYPE_STRING\n");
 		return BSCRIBE_STATUS_MISMATCH;
 	}
 #endif	/* BSCRIBE_PARANOID */
@@ -79,7 +72,10 @@ bscribe_dict_remove
 		{
 			if(bscribe_string_equal(&entry->key, key))
 			{
-				(void) bscribe_value_destroy(entry->value);
+				status = bscribe_value_destroy(entry->value);
+
+				if(status != BSCRIBE_STATUS_SUCCESS)
+					return status;
 
 				*entry_pnp = entry->next;
 				free(entry);

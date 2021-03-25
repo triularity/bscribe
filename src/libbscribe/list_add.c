@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/list_add.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -23,11 +23,14 @@
  * @param	value		An allocated bscribe value.
  *
  * @return	@{const BSCRIBE_STATUS_SUCCESS} if the value was added,
- *		@{const BSCRIBE_STATUS_OUTOFMEMORY} on memory failure,
- *		@{const BSCRIBE_STATUS_OUTOFRANGE} if the length would
- *		exceed @{const BSCRIBE_LIST_MAXLEN},
- *		or another @{code BSCRIBE_STATUS_}* value on failure.
+ *		@{const BSCRIBE_STATUS_OUTOFMEMORY} if memory allocation fails,
+ *		@{const BSCRIBE_STATUS_OUTOFRANGE} if the list length would
+ *			exceed @{const BSCRIBE_LIST_MAXLEN},
+ *		or when extra checks are enabled:
+ *		@{const BSCRIBE_STATUS_MISMATCH} if @{param blist}'s type
+ *			is not @{const BSCRIBE_TYPE_LIST}.
  *
+ * @see		bscribe_list_clear(bscribe_list_t *)
  * @see		bscribe_list_get(const bscribe_list_t *, size_t)
  * @see		bscribe_list_remove(bscribe_list_t *, size_t)
  * @see		bscribe_value_destroy(bscribe_value_t *)
@@ -43,24 +46,12 @@ bscribe_list_add
 
 
 #ifdef	BSCRIBE_PARANOID
-	if(blist == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_list_add() - blist == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
-	}
-
 	if(blist->base.type != BSCRIBE_TYPE_LIST)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_list_add() - blist->base.type != BSCRIBE_TYPE_LIST\n");
+		BSCRIBE_ASSERT_FAIL("blist->base.type != BSCRIBE_TYPE_LIST\n");
 		return BSCRIBE_STATUS_MISMATCH;
 	}
-
-	if(value == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_list_add() - value == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
-	}
-#endif	/* BSCRIBE_PARANOID */
+#endif
 
 	if(blist->length >= BSCRIBE_LIST_MAXLEN)
 		return BSCRIBE_STATUS_OUTOFRANGE;

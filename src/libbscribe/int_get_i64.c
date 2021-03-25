@@ -1,13 +1,14 @@
 /*
  * @(#) libbscribe/int_get_i64.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
 #include <stdint.h>
 
 #include <bscribe.h>
+#include "internal.h"
 
 /**
  * Extract a signed 64-bit value from a bscribe integer, after doing
@@ -22,10 +23,14 @@
  *
  * @return	@{const BSCRIBE_STATUS_SUCCESS} if the value was extracted,
  *		@{const BSCRIBE_STATUS_OUTOFRANGE} if the value does not fit
- *		in the return type,
- *		@{const BSCRIBE_STATUS_MISMATCH} if the type is not
- *		@{const BSCRIBE_TYPE_INT},
- *		or another @{code BSCRIBE_STATUS_}* value on failure.
+ *			in the return type,
+ *		or when extra checks are enabled:
+ *		@{const BSCRIBE_STATUS_MISMATCH} if @{param bint}'s type
+ *			is not @{const BSCRIBE_TYPE_INT}.
+ *
+ * @see		bscribe_int_init(bscribe_int_t *)
+ * @see		bscribe_int_init_i64(bscribe_int_t *, int64_t)
+ * @see		bscribe_int_set_i64(bscribe_int_t *, int64_t)
  */
 bscribe_status_t
 bscribe_int_get_i64
@@ -36,7 +41,10 @@ bscribe_int_get_i64
 {
 #ifdef	BSCRIBE_PARANOID
 	if(bint->base.type != BSCRIBE_TYPE_INT)
+	{
+		BSCRIBE_ASSERT_FAIL("bint->base.type != BSCRIBE_TYPE_INT\n");
 		return BSCRIBE_STATUS_MISMATCH;
+	}
 #endif
 
 	*valuep = bint->value;

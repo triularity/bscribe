@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/int_init.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -10,9 +10,13 @@
 /**
  * Initialize a bscribe integer.
  *
- * This is a convenience function that sets the
- * @{param bint}@{code ->base.type} field to @{constant BSCRIBE_TYPE_INT}
- * and the @{param bint}@{code ->value} field to @{code 0}.
+ * This is a convenience function that sets
+ * @{param bint}@{code ->base.type} to @{constant BSCRIBE_TYPE_INT}
+ * and @{param bint}@{code ->value} to @{code 0}.
+ *
+ * @note	This does not allocate memory. The initialized object should
+ *		not be freed with @{func bscribe_int_destroy(bscribe_int_t *)}
+ *		or @{func bscribe_value_destroy(bscribe_value_t *)}.
  *
  * @param	bint		The bscribe integer.
  */

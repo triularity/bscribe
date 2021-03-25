@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/list_length.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -17,7 +17,10 @@
  *
  * @param	blist		A bscribe list.
  *
- * @return	The length.
+ * @return	The length,
+ *		or when extra checks are enabled:
+ *		@{const 0} if @{param blist}'s type
+ *			is not @{const BSCRIBE_TYPE_LIST}.
  */
 size_t
 bscribe_list_length
@@ -26,18 +29,12 @@ bscribe_list_length
 )
 {
 #ifdef	BSCRIBE_PARANOID
-	if(blist == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_list_length() - blist == NULL\n");
-		return 0;
-	}
-
 	if(blist->base.type != BSCRIBE_TYPE_LIST)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_list_length() - blist->base.type != BSCRIBE_TYPE_LIST\n");
+		BSCRIBE_ASSERT_FAIL("blist->base.type != BSCRIBE_TYPE_LIST\n");
 		return 0;
 	}
-#endif	/* BSCRIBE_PARANOID */
+#endif
 
 	return blist->length;
 }

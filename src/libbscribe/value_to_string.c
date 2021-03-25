@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/value_to_string.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -13,12 +13,13 @@
  * Get the bscribe value as a bscribe string.
  *
  * This is a convenience function that returns @{param value} as a
- * @{type bscribe_string_t *} if its type is @{const BSCRIBE_TYPE_STRING},
- * or @{const NULL}, otherwise.
+ * @{type bscribe_string_t *}.
  *
  * @param	value		A bscribe value.
  *
- * @return	A bscribe string, or @{const NULL}.
+ * @return	A bscribe string,
+ *		or @{const NULL} if @{param values}'s type
+ *			is not @{const BSCRIBE_TYPE_STRING}.
  */
 bscribe_string_t *
 bscribe_value_to_string

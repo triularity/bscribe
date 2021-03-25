@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/dict_length.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -17,7 +17,10 @@
  *
  * @param	bdict		A bscribe dict.
  *
- * @return	The length.
+ * @return	The number of entries,
+ *		or when extra checks are enabled:
+ *		@{code 0} if @{param bdict}'s type
+ *			is not @{const BSCRIBE_TYPE_DICT}. 
  */
 size_t
 bscribe_dict_length
@@ -26,18 +29,12 @@ bscribe_dict_length
 )
 {
 #ifdef	BSCRIBE_PARANOID
-	if(bdict == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_length() - bdict == NULL\n");
-		return 0;
-	}
-
 	if(bdict->base.type != BSCRIBE_TYPE_DICT)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_length() - bdict->base.type != BSCRIBE_TYPE_DICT\n");
+		BSCRIBE_ASSERT_FAIL("bdict->base.type != BSCRIBE_TYPE_DICT\n");
 		return 0;
 	}
-#endif	/* BSCRIBE_PARANOID */
+#endif
 
 	return bdict->length;
 }

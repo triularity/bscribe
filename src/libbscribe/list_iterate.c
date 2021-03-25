@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/list_iterate.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -24,7 +24,10 @@
  * @param	client_data	Context data passed to @{param callback}.
  *
  * @return	@{const BSCRIBE_STATUS_SUCCESS} if all elements were iterated,
- *		or another @{code BSCRIBE_STATUS_}* value on failure.
+ *		a non-success status from the @{param callback} function,
+ *		or when extra checks are enabled:
+ *		@{const BSCRIBE_STATUS_MISMATCH} if @{param blist}'s type
+ *			is not @{const BSCRIBE_TYPE_LIST}.
  */
 bscribe_status_t
 bscribe_list_iterate
@@ -39,24 +42,12 @@ bscribe_list_iterate
 
 
 #ifdef	BSCRIBE_PARANOID
-	if(blist == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_list_iterate() - blist == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
-	}
-
 	if(blist->base.type != BSCRIBE_TYPE_LIST)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_list_iterate() - blist->base.type != BSCRIBE_TYPE_LIST\n");
+		BSCRIBE_ASSERT_FAIL("blist->base.type != BSCRIBE_TYPE_LIST\n");
 		return BSCRIBE_STATUS_MISMATCH;
 	}
-
-	if(callback == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_list_iterate() - callback == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
-	}
-#endif	/* BSCRIBE_PARANOID */
+#endif
 
 	entry = blist->entries;
 

@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/dict_iterate_ordered.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -36,7 +36,7 @@ do_iterate
 	const bscribe_dict_t * bdict,
 	bscribe_keyvalue_callback_t callback,
 	void * client_data,
-	bscribe_dict_entry_t ** sorted
+	bscribe_dict_entry_t ** sorted_buffer
 )
 {
 	size_t			hashsize;
@@ -57,7 +57,7 @@ do_iterate
 
 		while(entry != NULL)
 		{
-			sorted[idx++] = entry;
+			sorted_buffer[idx++] = entry;
 			entry = entry->next;
 		}
 
@@ -65,14 +65,24 @@ do_iterate
 		hashsize--;
 	}
 
+#ifdef	BSCRIBE_PARANOID
+	if(idx != bdict->length)
+	{
+		BSCRIBE_ASSERT_FAIL("idx != bdict->length");
+		return BSCRIBE_STATUS_CORRUPT;
+	}
+#endif
+
 	length = idx;
 
-	qsort(sorted, length, sizeof(sorted[0]), entry_compare);
+	qsort(sorted_buffer, length, sizeof(sorted_buffer[0]), entry_compare);
 
 	for(idx = 0; idx < length; idx++)
 	{
 		status = callback(
-			client_data, &sorted[idx]->key, sorted[idx]->value);
+			client_data,
+			&sorted_buffer[idx]->key,
+			sorted_buffer[idx]->value);
 
 		if(status != BSCRIBE_STATUS_SUCCESS)
 			return status;
@@ -88,7 +98,9 @@ do_iterate
  *
  * @note	If the @{param callback} function returns a value other than
  *		@{const BSCRIBE_STATUS_SUCCESS}, iteration will terminate and
- *		that status value will be returned.
+ *		that status value will be returned. Callback implementors
+ *		should return @{const BSCRIBE_STATUS_ABORT} to terminate
+ *		iteration when no error has occured.
  *
  * @note	If ordering is unimportant, the more efficient function,
  *		@{func bscribe_dict_iterate}, should be used instead.
@@ -98,14 +110,16 @@ do_iterate
  * @param	client_data	Context data passed to @{param callback}.
  *
  * @return	@{const BSCRIBE_STATUS_SUCCESS} if all elements were iterated,
- *		@{const BSCRIBE_STATUS_MISMATCH} if the type is not
- *		@{const BSCRIBE_TYPE_DICT},
- *		@{const BSCRIBE_STATUS_INVALID} if @{param bdict} or
- *		@{param callback} is @{const NULL},
- *		or another @{code BSCRIBE_STATUS_}* value on failure.
+ *		@{const BSCRIBE_STATUS_OUTOFMEMORY} if memory allocation fails,
+ *		a failure status from the @{param callback} function,
+ *		or when extra checks are enabled:
+ *		@{const BSCRIBE_STATUS_MISMATCH} if @{param bdict}'s type
+ *			is not @{const BSCRIBE_TYPE_DICT},
+ *		@{const BSCRIBE_STATUS_CORRUPT} if data corruption was
+ *			detected.
  *
  * @see		bscribe_dict_iterate(const bscribe_dict_t *, bscribe_keyvalue_callback_t, void *)
- * @see		bscribe_dict_iterate_keys(const bscribe_dict_t *, bscribe_value_callback_t, void *)
+ * @see		bscribe_dict_iterate_keys(const bscribe_dict_t *, bscribe_string_callback_t, void *)
  */
 bscribe_status_t
 bscribe_dict_iterate_ordered
@@ -122,28 +136,19 @@ bscribe_dict_iterate_ordered
 
 
 #ifdef	BSCRIBE_PARANOID
-	if(bdict == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_iterate_ordered() - bdict == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
-	}
-
 	if(bdict->base.type != BSCRIBE_TYPE_DICT)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_iterate_ordered() - bdict->base.type != BSCRIBE_TYPE_DICT\n");
+		BSCRIBE_ASSERT_FAIL("bdict->base.type != BSCRIBE_TYPE_DICT\n");
 		return BSCRIBE_STATUS_MISMATCH;
 	}
-
-	if(callback == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_iterate_ordered() - callback == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
-	}
-#endif	/* BSCRIBE_PARANOID */
+#endif
 
 	if((length = bdict->length) == 0)
 		return BSCRIBE_STATUS_SUCCESS;
 
+	/*
+	 * If the number of items is small, avoid a temporary heap allocation.
+	 */
 	if(length <= NOALLOC_SIZE)
 	{
 		return do_iterate(

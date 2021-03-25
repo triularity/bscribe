@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/string_init.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -13,23 +13,25 @@
 /**
  * Initialize a bscribe string.
  *
- * This is a convenience function that sets the
+ * This is a convenience function that sets
  * @{param bstring}@{code ->base.type} to @{const BSCRIBE_TYPE_STRING},
- * the @{param bstring}@{code ->buffer} to @{param buffer}
+ * @{param bstring}@{code ->buffer} to @{param buffer}
  * and @{param bstring}@{code ->length} to @{param length}.
  *
- * @note	This does not copy the contents of the input data.
+ * @note	This does not allocate memory nor copy the contents of the
+ *		input data. The initialized object should not be freed
+ *		with @{func bscribe_string_destroy(bscribe_string_t *)}.
+ *		or @{func bscribe_value_destroy(bscribe_value_t *)}.
+ *
+ * @note	@{param length} must not exceed	@{const BSCRIBE_STRING_MAXLEN}.
  *
  * @param	bstring		The bscribe string to initialize.
  * @param	buffer		Byte data for the string.
  * @param	length		The length of the data.
  *
  * @return	@{const BSCRIBE_STATUS_SUCCESS} if string was initialized,
- *		@{const BSCRIBE_STATUS_INVALID} if @{param buffer} is
- *		@{code NULL},
- *		@{const BSCRIBE_STATUS_OUTOFRANGE} if @{param length} is
- *		greater than @{const BSCRIBE_STRING_MAXLEN},
- *		or another @{code BSCRIBE_STATUS_}* value on failure.
+ *		or @{const BSCRIBE_STATUS_OUTOFRANGE} if @{param length} is
+ *			greater than @{const BSCRIBE_STRING_MAXLEN}.
  *
  * @see		bscribe_string_init_utf8(const char *)
  * @see		bscribe_string_create(const uint8_t *, size_t)
@@ -42,13 +44,8 @@ bscribe_string_init
 	size_t length
 )
 {
-#ifdef	BSCRIBE_PARANOID
-	if(buffer == NULL)
-		return BSCRIBE_STATUS_INVALID;
-
 	if(length > BSCRIBE_STRING_MAXLEN)
 		return BSCRIBE_STATUS_OUTOFRANGE;
-#endif	/* BSCRIBE_PARANOID */
 
 	bstring->base.type = BSCRIBE_TYPE_STRING;
 	bstring->buffer = buffer;

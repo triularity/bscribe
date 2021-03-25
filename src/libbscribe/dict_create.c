@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/dict_create.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -14,15 +14,20 @@
 /**
  * Create an allocated bscribe dictionary.
  *
+ * The returned value should be freed using
+ * @{func bscribe_dict_destroy(bscribe_dict_t *)} or
+ * @{func bscribe_value_destroy(bscribe_value_t *)}.
+ *
  * @note	@{param hashsize} may be silently clipped to a reasonable
  *		range if the requested value is too small or too large.
  *
  * @param	hashsize	The hash size, or @{code 0} to use default.
  *
  * @return	An allocated bscribe dictionary,
- *		or @{const NULL} on failure (e.g. out of memory).
+ *		or @{const NULL} if memory allocation fails.
  *
  * @see		bscribe_dict_destroy(bscribe_dict_t *)
+ * @see		bscribe_value_destroy(bscribe_value_t *)
  */
 bscribe_dict_t *
 bscribe_dict_create

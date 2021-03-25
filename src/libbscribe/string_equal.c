@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/string_equal.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -9,9 +9,16 @@
 #include <stdbool.h>
 
 #include <bscribe.h>
+#include "internal.h"
 
 /**
  * Determine if two bscribe strings have equal contents.
+ * This may be faster than using
+ * @{func bscribe_string_compare(const bscribe_string_t *, const bscribe_s
+tring_t *)} in some cases.
+ *
+ * @note	Strings are currently compared using bytes.
+ *		Extended encodings, such as UTF-8, may not compare as expected.
  *
  * @param	bstring1	A bscribe string.
  * @param	bstring2	Another bscribe string.
@@ -33,10 +40,16 @@ bscribe_string_equal
 
 #ifdef	BSCRIBE_PARANOID
 	if(bstring1->base.type != BSCRIBE_TYPE_STRING)
+	{
+		BSCRIBE_ASSERT_FAIL("bstring1->base.type != BSCRIBE_TYPE_STRING\n");
 		return false;
+	}
 
 	if(bstring2->base.type != BSCRIBE_TYPE_STRING)
+	{
+		BSCRIBE_ASSERT_FAIL("bstring2->base.type != BSCRIBE_TYPE_STRING\n");
 		return false;
+	}
 #endif
 
 	len1 = bstring1->length;

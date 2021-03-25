@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/dict_copy.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -15,13 +15,21 @@
 /**
  * Copy a bscribe dictionary.
  *
+ * The returned value should be freed using
+ * @{func bscribe_dict_destroy(bscribe_dict_t *)} or
+ * @{func bscribe_value_destroy(bscribe_value_t *)}.
+ *
  * @param	bdict		The bscribe dictionary.
  *
  * @return	A copy of the dictionary,
- *		or @{const NULL} on failure (e.g. out of memory).
+ *		@{const NULL} if memory allocation fails,
+ *		or when extra checks are enabled:
+ *		@{const NULL} if @{param bdict}'s type is not
+ *			@{const BSCRIBE_TYPE_DICT},
  *
  * @see		bscribe_dict_create(size_t)
  * @see		bscribe_dict_destroy(bscribe_dict_t *)
+ * @see		bscribe_value_destroy(bscribe_value_t *)
  */
 bscribe_dict_t *
 bscribe_dict_copy
@@ -42,28 +50,17 @@ bscribe_dict_copy
 
 
 #ifdef	BSCRIBE_PARANOID
-	if(bdict == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_copy() - bdict == NULL\n");
-		return NULL;
-	}
-
 	if(bdict->base.type != BSCRIBE_TYPE_DICT)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_copy() - bdict->base.type != BSCRIBE_TYPE_DICT\n");
+		BSCRIBE_ASSERT_FAIL("bdict->base.type != BSCRIBE_TYPE_DICT\n");
 		return NULL;
 	}
-#endif	/* BSCRIBE_PARANOID */
+#endif
 
 	hashsize = bdict->hashsize;
 
 	if((bdict_copy = bscribe_dict_create(hashsize)) == NULL)
 		return NULL;
-
-	/*
-	 * This must be set before potential calls to bscribe_dict_destroy()
-	 */
-	bdict_copy->length = bdict->length;
 
 	buckets = bdict->buckets;
 	buckets_copy = bdict_copy->buckets;
@@ -81,6 +78,7 @@ bscribe_dict_copy
 			 sizeof(bscribe_dict_entry_t) + key_length)) == NULL)
 			{
 				(void) bscribe_dict_destroy(bdict_copy);
+
 				return NULL;
 			}
 
@@ -89,6 +87,7 @@ bscribe_dict_copy
 			{
 				free(entry_copy);
 				(void) bscribe_dict_destroy(bdict_copy);
+
 				return NULL;
 			}
 
@@ -102,10 +101,11 @@ bscribe_dict_copy
 			entry_copy->value = value_copy;
 			entry_copy->next = NULL;
 
-			entry = entry->next;
-
-			*entry_copy_pnp = entry;
+			*entry_copy_pnp = entry_copy;
 			entry_copy_pnp = &entry_copy->next;
+			bdict_copy->length++;
+
+			entry = entry->next;
 		}
 
 		buckets++;

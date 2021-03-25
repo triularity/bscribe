@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/value_destroy.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -24,9 +24,10 @@
  * @param	value		A bscribe value.
  *
  * @return	@{const BSCRIBE_STATUS_SUCCESS} if the value was destroyed,
- *		@{const BSCRIBE_STATUS_INVALID} if @{param value} is
- *		@{code NULL},
- *		or another @{code BSCRIBE_STATUS_}* value on failure.
+ *		a status from the type specific destructor,
+ *		@{const BSCRIBE_STATUS_MISMATCH} if @{param value}'s type
+ *			was unknown,
+ *		or another code specific to the type's destroy function.
  *
  * @see		bscribe_int_destroy(bscribe_int_t *)
  * @see		bscribe_dict_destroy(bscribe_dict_t *)
@@ -40,11 +41,6 @@ bscribe_value_destroy
 	bscribe_value_t * value
 )
 {
-#ifdef	BSCRIBE_PARANOID
-	if(value == NULL)
-		return BSCRIBE_STATUS_INVALID;
-#endif
-
 	switch(value->type)
 	{
 		case BSCRIBE_TYPE_DICT:

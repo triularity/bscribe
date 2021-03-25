@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/string_set.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #include <bscribe.h>
+#include "internal.h"
 
 /**
  * Set an initialized a bscribe string.
@@ -21,21 +22,19 @@
  *		it free previously allocated content, such as those created
  *		with @{func bscribe_string_create()}. 
  *
- * @note	This does not set the type field. The bscribe string must
+ * @note	This does not set the type field. @{param bstring} must
  *		already be initialized.
  *
  * @param	bstring		The bscribe string to initialize.
  * @param	buffer		Byte data for the string.
  * @param	length		The length of the data.
  *
- * @return	@{const BSCRIBE_STATUS_SUCCESS} if string was initialized,
- *		@{const BSCRIBE_STATUS_INVALID} if @{param buffer} is
- *		@{code NULL},
+ * @return	@{const BSCRIBE_STATUS_SUCCESS} if value was set,
  *		@{const BSCRIBE_STATUS_OUTOFRANGE} if @{param length} is
- *		greater than @{const BSCRIBE_STRING_MAXLEN},
+ *			greater than @{const BSCRIBE_STRING_MAXLEN},
+ *		or when extra checks are enabled:
  *		@{const BSCRIBE_STATUS_MISMATCH} if @{param bstring} is not
- *		initialized to @{const BSCRIBE_TYPE_STRING},
- *		or another @{code BSCRIBE_STATUS_}* value on failure.
+ *			initialized to @{const BSCRIBE_TYPE_STRING}.
  *
  * @see		bscribe_string_set_utf8(const char *)
  * @see		bscribe_string_init(bscribe_string_t *, const uint8_t *, size_t)
@@ -51,15 +50,15 @@ bscribe_string_set
 )
 {
 #ifdef	BSCRIBE_PARANOID
-	if(buffer == NULL)
-		return BSCRIBE_STATUS_INVALID;
+	if(bstring->base.type != BSCRIBE_TYPE_STRING)
+	{
+		BSCRIBE_ASSERT_FAIL("bstring->base.type != BSCRIBE_TYPE_STRING\n");
+		return BSCRIBE_STATUS_MISMATCH;
+	}
+#endif
 
 	if(length > BSCRIBE_STRING_MAXLEN)
 		return BSCRIBE_STATUS_OUTOFRANGE;
-
-	if(bstring->base.type != BSCRIBE_TYPE_STRING)
-		return BSCRIBE_STATUS_MISMATCH;
-#endif	/* BSCRIBE_PARANOID */
 
 	bstring->buffer = buffer;
 	bstring->length = length;

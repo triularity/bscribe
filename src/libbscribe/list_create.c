@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/list_create.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -14,10 +14,22 @@
 /**
  * Create a bscribe list.
  *
- * @return	An allocated bscribe list,
- *		or @{const NULL} on failure (e.g. out of memory).
+ * The returned value should be freed using
+ * @{func bscribe_list_destroy(bscribe_list_t *)} or
+ * @{func bscribe_value_destroy(bscribe_value_t *)}.
  *
+ * @return	An allocated bscribe list,
+ *		or @{const NULL} if memory allocation fails.
+ *
+ * @see		bscribe_list_add(bscribe_list_t *, bscribe_value_t *)
+ * @see		bscribe_list_clear(bscribe_list_t *)
+ * @see		bscribe_list_copy(const bscribe_list_t *)
  * @see		bscribe_list_destroy(bscribe_list_t *)
+ * @see		bscribe_list_get(const bscribe_list_t *, size_t)
+ * @see		bscribe_list_insert(bscribe_list_t *, bscribe_value_t *, size_t)
+ * @see		bscribe_list_length(const bscribe_list_t *)
+ * @see		bscribe_list_remove(bscribe_list_t *, size_t)
+ * @see		bscribe_value_destroy(bscribe_value_t *)
  */
 bscribe_list_t *
 bscribe_list_create

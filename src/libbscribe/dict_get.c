@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/dict_get.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -23,7 +23,13 @@
  * @param	bdict		The bscribe dictionary.
  * @param	key		A dictionary key.
  *
- * @return	A bscribe value, or @{const NULL} if the key does not exist.
+ * @return	A bscribe value,
+ *		@{const NULL} if the key does not exist,
+ *		or when extra checks are enabled:
+ *		@{const NULL} if @{param bdict}'s type
+ *			is not @{const BSCRIBE_TYPE_DICT},
+ *		or @{const NULL} if @{param key}'s type
+ *			is not @{const BSCRIBE_TYPE_STRING}.
  *
  * @see		bscribe_dict_set(bscribe_dict_t *, const bscribe_string_t *, bscribe_value_t *)
  */
@@ -39,27 +45,15 @@ bscribe_dict_get
 
 
 #ifdef	BSCRIBE_PARANOID
-	if(bdict == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_get() - bdict == NULL\n");
-		return NULL;
-	}
-
 	if(bdict->base.type != BSCRIBE_TYPE_DICT)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_get() - bdict->base.type != BSCRIBE_TYPE_DICT\n");
-		return NULL;
-	}
-
-	if(key == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_get() - key == NULL\n");
+		BSCRIBE_ASSERT_FAIL("bdict->base.type != BSCRIBE_TYPE_DICT\n");
 		return NULL;
 	}
 
 	if(key->base.type != BSCRIBE_TYPE_STRING)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_get() - key->base.type != BSCRIBE_TYPE_STRING\n");
+		BSCRIBE_ASSERT_FAIL("key->base.type != BSCRIBE_TYPE_STRING\n");
 		return NULL;
 	}
 #endif	/* BSCRIBE_PARANOID */

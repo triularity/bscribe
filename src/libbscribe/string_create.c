@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/string_create.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -14,6 +14,10 @@
 /**
  * Create an allocated a bscribe string.
  *
+ * The returned value should be freed using
+ * @{func bscribe_string_destroy(bscribe_string_t *)} or
+ * @{func bscribe_value_destroy(bscribe_value_t *)}.
+ *
  * @note	The returned bscribe string should be considered immutable.
  *		Updating its contents may result in a memory leak until the
  *		object is destroyed.
@@ -24,8 +28,9 @@
  * @param	length		The length of the data.
  *
  * @return	An allocated bscribe string,
- *		or @{const NULL} on failure (e.g. out of memory,
- *		@{param buffer} is @{const NULL}, @{param length} too long).
+ *		@{const NULL} if memory allocation fails,
+ *		@{const NULL} if @{param length} is greater than
+ *			@{const BSCRIBE_STRING_MAXLEN}.
  *
  * @see		bscribe_string_create_utf8(const char *)
  * @see		bscribe_string_destroy(bscribe_string_t *)
@@ -41,13 +46,8 @@ bscribe_string_create
 	uint8_t *		buffer_copy;
 
 
-#ifdef	BSCRIBE_PARANOID
-	if(buffer == NULL)
-		return NULL;
-
 	if(length > BSCRIBE_STRING_MAXLEN)
 		return NULL;
-#endif	/* BSCRIBE_PARANOID */
 
 	if((bstring = malloc(sizeof(bscribe_string_t) + length)) != NULL)
 	{

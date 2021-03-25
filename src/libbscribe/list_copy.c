@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/list_copy.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -13,13 +13,21 @@
 /**
  * Copy a bscribe list.
  *
+ * The returned value should be freed using
+ * @{func bscribe_list_destroy(bscribe_list_t *)} or
+ * @{func bscribe_value_destroy(bscribe_value_t *)}.
+ *
  * @param	blist		A bscribe list to copy.
  *
- * @return	An bscribe list copy,
- *		or @{const NULL} on failure (e.g. out of memory).
+ * @return	A new bscribe list,
+ *		@{const NULL} if memory allocation fails,
+ *		or when extra checks are enabled:
+ *		@{const NULL} if @{param blist}'s type
+ *			is not @{const BSCRIBE_TYPE_LIST}.
  *
  * @see		bscribe_list_create()
  * @see		bscribe_list_destroy(bscribe_list_t *)
+ * @see		bscribe_value_destroy(bscribe_value_t *)
  */
 bscribe_list_t *
 bscribe_list_copy
@@ -35,26 +43,15 @@ bscribe_list_copy
 
 
 #ifdef	BSCRIBE_PARANOID
-	if(blist == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_list_copy() - blist == NULL\n");
-		return NULL;
-	}
-
 	if(blist->base.type != BSCRIBE_TYPE_LIST)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_list_copy() - blist->base.type != BSCRIBE_TYPE_LIST\n");
+		BSCRIBE_ASSERT_FAIL("blist->base.type != BSCRIBE_TYPE_LIST\n");
 		return NULL;
 	}
-#endif	/* BSCRIBE_PARANOID */
+#endif
 
 	if((blist_copy = bscribe_list_create()) == NULL)
 		return NULL;
-
-	/*
-	 * This must be set before potential calls to bscribe_list_destroy()
-	 */
-	blist_copy->length = blist->length;
 
 	entry = blist->entries;
 	last_pnp = blist_copy->last_pnp;
@@ -79,6 +76,7 @@ bscribe_list_copy
 
 		*last_pnp = entry_copy;
 		last_pnp = &entry_copy->next;
+		blist_copy->length++;
 
 		entry = entry->next;
 	}

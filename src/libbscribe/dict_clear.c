@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/dict_clear.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -13,25 +13,21 @@
 /**
  * Remove all entries from a bscribe dictionary.
  *
- * @note	Using a @{param bdict} value not returned from
- *		@{func bscribe_dict_create} or
- *		@{func bscribe_dict_copy} will have undefined results.
- *
  * @note	Under normal conditions, this function should never fail.
  *		Such a failure may indicate memory corruption or a programming
  *		error.
  *
  * @note	This will call @{func bscribe_value_destroy} on all values
- *		in the dictionary. The return value from the value destroy
- *		function will be ignored, resulting in potential memory leaks.
- *		Under normal conditions, this should never happen.
+ *		in the dictionary. If the return status from the value destroy
+ *		function is not @{const BSCRIBE_STATUS_SUCCESS}, then that
+ *		status will be returned, leaving some elements unremoved.
  *
  * @param	bdict		A bscribe dictionary.
  *
- * @return	@{const BSCRIBE_STATUS_SUCCESS} if it was cleared,
- *		@{const BSCRIBE_STATUS_MISMATCH} if the type is not
- *		@{const BSCRIBE_TYPE_DICT},
- *		or another @{code BSCRIBE_STATUS_}* value on failure.
+ * @return	@{const BSCRIBE_STATUS_SUCCESS} if the list was cleared,
+ *		or when extra checks are enabled:
+ *		@{const BSCRIBE_STATUS_MISMATCH} if @{param bdict}'s type
+ *			is not @{const BSCRIBE_TYPE_DICT}.
  *
  * @see		bscribe_dict_copy(const bscribe_dict_t *)
  * @see		bscribe_dict_destroy(bscribe_dict_t *)
@@ -47,48 +43,58 @@ bscribe_dict_clear
 	bscribe_dict_entry_t **	buckets;
 	bscribe_dict_entry_t *	entry;
 	bscribe_dict_entry_t *	entry_next;
+	bscribe_status_t	status;
 
 
 #ifdef	BSCRIBE_PARANOID
-	if(bdict == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_clear() - bdict == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
-	}
-
 	if(bdict->base.type != BSCRIBE_TYPE_DICT)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_clear() - bdict->base.type != BSCRIBE_TYPE_DICT\n");
+		BSCRIBE_ASSERT_FAIL("bdict->base.type != BSCRIBE_TYPE_DICT\n");
 		return BSCRIBE_STATUS_MISMATCH;
 	}
-#endif	/* BSCRIBE_PARANOID */
+#endif
 
-	if(bdict->length != 0)
+	if(bdict->length == 0)
+		return BSCRIBE_STATUS_SUCCESS;
+
+	hashsize = bdict->hashsize;
+	buckets = bdict->buckets;
+
+	while(hashsize != 0)
 	{
-		hashsize = bdict->hashsize;
-		buckets = bdict->buckets;
+		entry = *buckets;
 
-		while(hashsize != 0)
+		while(entry != NULL)
 		{
-			entry = *buckets;
-			*buckets = NULL;
+			status = bscribe_value_destroy(entry->value);
 
-			while(entry != NULL)
+			if(status != BSCRIBE_STATUS_SUCCESS)
 			{
-				entry_next = entry->next;
+				*buckets = entry;
 
-				(void) bscribe_value_destroy(entry->value);
-				free(entry);
-
-				entry = entry_next;
+				return status;
 			}
 
-			buckets++;
-			hashsize--;
+			entry_next = entry->next;
+			free(entry);
+			entry = entry_next;
+
+			bdict->length--;
 		}
 
-		bdict->length = 0;
+		*buckets = NULL;
+
+		buckets++;
+		hashsize--;
 	}
+
+#ifdef	BSCRIBE_PARANOID
+	if(bdict->length != 0)
+	{
+		BSCRIBE_ASSERT_FAIL("bdict->length != 0");
+		return BSCRIBE_STATUS_CORRUPT;
+	}
+#endif	/* BSCRIBE_PARANOID */
 
 	return BSCRIBE_STATUS_SUCCESS;
 }

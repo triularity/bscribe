@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/outstream_stdio_write.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -18,11 +18,9 @@
  * @param	len		The number of bytes to write.
  *
  * @return	@{const BSCRIBE_STATUS_SUCCESS} on success,
- *		@{const BSCRIBE_STATUS_INVALID} if @{param stream},
- *		@{param stream}@{code ->fp} or @{param buf} is @{const NULL},
- *		@{const BSCRIBE_STATUS_IOERROR} on I/O error,
+ *		@{const BSCRIBE_STATUS_IOERROR} if an I/O error occured,
  *		@{const BSCRIBE_STATUS_EOF} if @{param len} bytes were not
- *		writen before end-of-file.
+ *			written before the end of stream was reached.
  */
 bscribe_status_t
 _bscribe_outstream_stdio_write
@@ -36,17 +34,7 @@ _bscribe_outstream_stdio_write
 	size_t		amount;
 
 
-#ifdef	BSCRIBE_PARANOID
-	if((stream == NULL) || (buf == NULL))
-		return BSCRIBE_STATUS_INVALID;
-#endif
-
 	fp = ((bscribe_outstream_stdio_t *) stream)->fp;
-
-#ifdef	BSCRIBE_PARANOID
-	if(fp == NULL)
-		return BSCRIBE_STATUS_INVALID;
-#endif
 
 	while(len != 0)
 	{

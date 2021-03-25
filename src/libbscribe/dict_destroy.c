@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/dict_destroy.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -14,24 +14,25 @@
  * Destroy a bscribe dictionary.
  *
  * @note	Using a @{param bdict} value not returned from
- *		@{func bscribe_dict_create} or
- *		@{func bscribe_dict_copy} will have undefined results.
+ *		@{func bscribe_dict_create(size_t)} or
+ *		@{func bscribe_dict_copy(const bscribe_dict_t *)}
+ *		will have undefined results.
+ *
+ * @note	This will call @{func bscribe_dict_clear(bscribe_dict_t *)}
+ *		to remove all items from the dictionary.
  *
  * @note	Under normal conditions, this function should never fail.
  *		Such a failure may indicate memory corruption or a programming
  *		error.
  *
- * @note	This will call @{func bscribe_value_destroy} on all values
- *		in the dictionary. The return value from the value destroy
- *		function will be ignored, resulting in potential memory leaks.
- *		Under normal conditions, this should never happen.
- *
  * @param	bdict		A bscribe dictionary.
  *
  * @return	@{const BSCRIBE_STATUS_SUCCESS} if the value was destroyed,
- *		@{const BSCRIBE_STATUS_MISMATCH} if the type is not
- *		@{const BSCRIBE_TYPE_DICT},
- *		or another @{code BSCRIBE_STATUS_}* value on failure.
+ *		a failure status from
+ *			@{func bscribe_dict_clear(bscribe_dict_t *)},
+ *		or when extra checks are enabled:
+ *		@{const BSCRIBE_STATUS_MISMATCH} if @{param bdict}'s type
+ *			is not @{const BSCRIBE_TYPE_DICT}.
  *
  * @see		bscribe_dict_create()
  * @see		bscribe_dict_copy(const bscribe_dict_t *)
@@ -48,18 +49,12 @@ bscribe_dict_destroy
 
 
 #ifdef	BSCRIBE_PARANOID
-	if(bdict == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_destroy() - bdict == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
-	}
-
 	if(bdict->base.type != BSCRIBE_TYPE_DICT)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_destroy() - bdict->base.type != BSCRIBE_TYPE_DICT\n");
+		BSCRIBE_ASSERT_FAIL("bdict->base.type != BSCRIBE_TYPE_DICT\n");
 		return BSCRIBE_STATUS_MISMATCH;
 	}
-#endif	/* BSCRIBE_PARANOID */
+#endif
 
 	if((status = bscribe_dict_clear(bdict)) != BSCRIBE_STATUS_SUCCESS)
 		return status;

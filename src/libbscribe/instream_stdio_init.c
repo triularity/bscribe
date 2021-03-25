@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/instream_stdio_init.c
  *
- * Copyright (c) 2018, 2020, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -20,8 +20,7 @@
  * @param	stream		A bscribe stdio input stream.
  * @param	fp		The file pointer to read from.
  *
- * @return	A bscribe input stream,
- *		or @{const NULL} on failure (e.g. invalid parameters).
+ * @return	A bscribe input stream.
  *
  * @see		_bscribe_instream_stdio_read(bscribe_instream_t *, void *, size_t)
  */
@@ -32,11 +31,6 @@ bscribe_instream_stdio_init
 	FILE * fp
 )
 {
-#ifdef	BSCRIBE_PARANOID
-	if((stream == NULL) || (fp == NULL))
-		return NULL;
-#endif
-
 	stream->base.op_read = _bscribe_instream_stdio_read;
 	stream->fp = fp;
 

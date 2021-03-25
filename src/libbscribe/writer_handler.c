@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/writer_handler.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -11,6 +11,7 @@
 #include <inttypes.h>
 
 #include <bscribe.h>
+#include "internal.h"
 
 /*
  * Maximum length of int64_t in base 10 ("-9223372036854775808")
@@ -139,7 +140,10 @@ do_string_data(void * client_data, const uint8_t * buffer, size_t length)
 	if(BSCRIBE_STRING_MAXLEN > UINT32_MAX)
 	{
 		if(length > UINT32_MAX)
+		{
+			BSCRIBE_ASSERT_FAIL("length > UINT32_MAX\n");
 			return BSCRIBE_STATUS_OUTOFRANGE;
+		}
 	}
 #endif
 

@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/dict_iterate_keys.c
  *
- * Copyright (c) 2018, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -15,7 +15,9 @@
  *
  * @note	If the @{param callback} function returns a value other than
  *		@{const BSCRIBE_STATUS_SUCCESS}, iteration will terminate and
- *		that status value will be returned.
+ *		that status value will be returned. Callback implementors
+ *		should return @{const BSCRIBE_STATUS_ABORT} to terminate
+ *		iteration when no error has occured.
  *
  * @note	Keys will be iterated in an implementation defined order.
  *
@@ -24,11 +26,10 @@
  * @param	client_data	Context data passed to @{param callback}.
  *
  * @return	@{const BSCRIBE_STATUS_SUCCESS} if all keys were iterated,
- *		@{const BSCRIBE_STATUS_MISMATCH} if the type is not
- *		@{const BSCRIBE_TYPE_DICT},
- *		@{const BSCRIBE_STATUS_INVALID} if @{param bdict} or
- *		@{param callback} is @{const NULL},
- *		or another @{code BSCRIBE_STATUS_}* value on failure.
+ *		a failure status from the @{param callback} function,
+ *		or when extra checks are enabled:
+ *		@{const BSCRIBE_STATUS_MISMATCH} if @{param bdict}'s type
+ *			is not @{const BSCRIBE_TYPE_DICT}.
  *
  * @see		bscribe_dict_iterate(const bscribe_dict_t *, bscribe_keyvalue_callback_t, void *)
  */
@@ -47,24 +48,12 @@ bscribe_dict_iterate_keys
 
 
 #ifdef	BSCRIBE_PARANOID
-	if(bdict == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_iterate_keys() - bdict == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
-	}
-
 	if(bdict->base.type != BSCRIBE_TYPE_DICT)
 	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_iterate_keys() - bdict->base.type != BSCRIBE_TYPE_DICT\n");
+		BSCRIBE_ASSERT_FAIL("bdict->base.type != BSCRIBE_TYPE_DICT\n");
 		return BSCRIBE_STATUS_MISMATCH;
 	}
-
-	if(callback == NULL)
-	{
-		BSCRIBE_ASSERT_FAIL("bscribe_dict_iterate_keys() - callback == NULL\n");
-		return BSCRIBE_STATUS_INVALID;
-	}
-#endif	/* BSCRIBE_PARANOID */
+#endif
 
 	if(bdict->length != 0)
 	{

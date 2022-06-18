@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/string_create.c
  *
- * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, 2022, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include <bscribe.h>
+#include "internal.h"
 
 /**
  * Create an allocated a bscribe string.
@@ -48,6 +49,17 @@ bscribe_string_create
 
 	if(length > BSCRIBE_STRING_MAXLEN)
 		return NULL;
+
+#ifdef	BSCRIBE_PARANOID
+	/*
+	 * BSCRIBE_STRING_MAXLEN should never allow it to be this big
+	 */
+	if(length >= (SIZE_MAX - sizeof(bscribe_string_t)))
+	{
+		BSCRIBE_ASSERT_FAIL("length >= (SIZE_MAX - sizeof(bscribe_string_t)");
+		return NULL;
+	}
+#endif
 
 	if((bstring = malloc(sizeof(bscribe_string_t) + length)) != NULL)
 	{

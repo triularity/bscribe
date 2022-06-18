@@ -1,7 +1,7 @@
 /*
  * @(#) libbscribe/dict_set.c
  *
- * Copyright (c) 2018, 2021, Chad M. Fraleigh.  All rights reserved.
+ * Copyright (c) 2018, 2021, 2022, Chad M. Fraleigh.  All rights reserved.
  * http://www.triularity.org/
  */
 
@@ -108,6 +108,18 @@ bscribe_dict_set
 		return BSCRIBE_STATUS_OUTOFRANGE;
 
 	key_length = key->length;
+
+#ifdef	BSCRIBE_PARANOID
+	/*
+	 * BSCRIBE_STRING_MAXLEN should never allow it to be this big
+	 */
+	if(key_length >= (SIZE_MAX - sizeof(bscribe_dict_entry_t)))
+	{
+		BSCRIBE_ASSERT_FAIL("key_length >= (SIZE_MAX - sizeof(bscribe_dict_entry_t)");
+
+		return BSCRIBE_STATUS_CORRUPT;
+	}
+#endif
 
 	if((entry = malloc(sizeof(bscribe_dict_entry_t) + key_length)) == NULL)
 		return BSCRIBE_STATUS_OUTOFMEMORY;

@@ -27,7 +27,7 @@ extern "C" {
 /*
  * Non-null handling
  */
-#ifdef	__GNUC__
+#ifdef	__clang__
 #define	_BSCRIBE_NN	__attribute__((nonnull))
 #define	_BSCRIBE_NN_ENABLED
 #else

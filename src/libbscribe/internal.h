@@ -29,13 +29,13 @@ extern "C" {
 #define	BSCRIBE_BREAKPOINT()		abort()
 #endif
 #else
-#define	BSCRIBE_BREAKPOINT()
+#define	BSCRIBE_BREAKPOINT()		do { } while(0)
 #endif
 
 #ifdef	BSCRIBE_PARANOID_DEBUG
 #define	BSCRIBE_DBG(...)		fprintf(stderr, __VA_ARGS__)
 #else
-#define	BSCRIBE_DBG(...)		(void)
+#define	BSCRIBE_DBG(...)		do { } while(0)
 #endif
 
 #define	BSCRIBE_ASSERT_FAIL(...)	BSCRIBE_DBG(__VA_ARGS__); BSCRIBE_BREAKPOINT()
